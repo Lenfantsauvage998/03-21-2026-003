@@ -669,7 +669,7 @@ async function loadAll() {
 
     DB.balances  = sortChrono(balances);
     DB.all       = allTx;
-    DB.income    = allTx.filter(t=>t.type==='income'&&(t.subcategory||'').toLowerCase()!=='transfer in');
+    DB.income    = allTx.filter(t=>t.type==='income');
     DB.expenses  = allTx.filter(t=>t.type==='expense');
     DB.real_exp  = allTx.filter(t=>t.type==='expense'&&!['Taxes','Transfers'].includes(t.category));
     DB.monthly   = buildMonthly(allTx);
@@ -693,11 +693,10 @@ function buildMonthly(txs) {
   txs.filter(t=>t.type!=='transfer').forEach(t=>{
     const k=`${t.year}-${MONTH_NUM[t.month]||0}`;
     if(!map[k]) map[k]={year:t.year,month:t.month,income:0,expenses:0,
-      salary:0,interest:0,didi:0,freelance:0,reembolso:0,familiar:0,other_inc:0};
+      salary:0,interest:0,didi:0,freelance:0,reembolso:0,familiar:0,other_inc:0,other_in:0};
     if(t.type==='income'){
       const sub=(t.subcategory||'').toLowerCase();
       // Exclude internal Nu→Rappi deposits from income (large account moves)
-      if(sub==='transfer in') return;
       map[k].income+=t.amount;
       if(sub==='salary')                         map[k].salary    +=t.amount;
       else if(sub==='interest')                  map[k].interest  +=t.amount;
@@ -705,6 +704,7 @@ function buildMonthly(txs) {
       else if(sub==='freelance')                 map[k].freelance +=t.amount;
       else if(sub==='refund'||sub==='reembolso') map[k].reembolso +=t.amount;
       else if(sub==='familiar'||sub==='family')  map[k].familiar  +=t.amount;
+      else if(sub==='other_in')                  map[k].other_in  +=t.amount;
       else                                       map[k].other_inc +=t.amount;
     } else { map[k].expenses+=t.amount; }
   });
@@ -790,6 +790,7 @@ function renderFlujo() {
     {key:'familiar',  label:'Familiar',   color:'rgba(244,114,182,0.75)'},
     {key:'reembolso', label:'Reembolsos', color:'rgba(167,139,250,0.65)'},
     {key:'other_inc', label:'Otros',      color:'rgba(120,120,120,0.55)'},
+    {key:'other_in',  label:'Depósitos',  color:'rgba(99,179,237,0.65)'},
   ];
   const srcDatasets = SRC_SOURCES
     .filter(s => m.some(x=>(x[s.key]||0)>0))
