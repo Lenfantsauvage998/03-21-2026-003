@@ -1,0 +1,17 @@
+{
+  "name": "DFG Finance OS",
+  "short_name": "DFG Finance",
+  "description": "Dashboard financiero personal Daniel Figueredo",
+  "start_url": "/dfg-finance1/daniel_finance_v6.html",
+  "scope": "/dfg-finance1/",
+  "display": "standalone",
+  "background_color": "#080910",
+  "theme_color": "#080910",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["finance", "productivity"],
+  "lang": "es"
+}
