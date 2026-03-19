@@ -830,6 +830,28 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
 
 <script>
 // ══════════════════════════════════════════════════════════
+//  EARLY THEME — runs before PIN screen so the lock screen
+//  is already branded when the user sees it.
+//  1. localStorage hit  → instant (zero flash)
+//  2. fetch client.json → updates if changed, re-saves cache
+// ══════════════════════════════════════════════════════════
+(()=>{
+  const cached = localStorage.getItem('dfg_theme');
+  if(cached) document.documentElement.setAttribute('data-theme', cached);
+})();
+(async()=>{
+  try{
+    const r = await fetch('client.json');
+    if(r.ok){
+      const cfg = await r.json();
+      const theme = cfg?.client?.branding?.theme || 'phantom';
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('dfg_theme', theme);
+    }
+  }catch(e){}
+})();
+
+// ══════════════════════════════════════════════════════════
 //  CONFIG — Supabase hardcoded
 // ══════════════════════════════════════════════════════════
 const SB_URL = 'https://vfhqrbadrnwmlncvlirn.supabase.co';
