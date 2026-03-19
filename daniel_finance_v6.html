@@ -326,7 +326,7 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
         <div class="chart-wrap" id="cPieWrap" style="height:160px"><canvas id="cPie"></canvas></div>
       </div>
       <div class="card">
-        <div class="ct">Gasto mensual vs límite $400K</div>
+        <div class="ct" id="expMLimitTitle">Gasto mensual vs límite $400K</div>
         <div class="chart-wrap" style="height:160px"><canvas id="cExpM"></canvas></div>
         <div style="margin-top:14px" data-module="gastos" data-feature="day_of_week_grid"><div class="ct">Por día de la semana</div><div class="dow-grid" id="dowGrid" style="margin-top:8px"></div></div>
       </div>
@@ -1008,7 +1008,11 @@ function renderGastos() {
   if(pieWrap) pieWrap.style.height=isMobile?'220px':'160px';
   mkCh('cPie',{type:'doughnut',data:{labels:cats.map(c=>c[0]),datasets:[{data:cats.map(c=>c[1]),backgroundColor:cats.map(c=>CAT_COL[c[0]]||'#888'),borderColor:'#0e0f15',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:isMobile?'bottom':'right',labels:{boxWidth:9,font:{size:10},padding:isMobile?6:10}}}}});
   const m=DB.monthly;
-  mkCh('cExpM',{type:'bar',data:{labels:m.map(x=>x.month.slice(0,3)+' '+x.year),datasets:[{label:'Gasto real',data:m.map(x=>x.expenses),backgroundColor:m.map(x=>x.expenses>500000?'rgba(240,83,83,0.75)':'rgba(34,212,122,0.6)'),borderRadius:4},{label:'$400K',data:m.map(()=>400000),type:'line',borderColor:'rgba(245,166,35,0.6)',borderDash:[5,4],pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,font:{size:10}}}},scales:{x:xO,y:yO}}});
+  const dynLimit=buildPrediction()?.target||BUDGET_LIMIT;
+  const limitLbl=fmt(dynLimit)+' objetivo';
+  const titleEl=document.getElementById('expMLimitTitle');
+  if(titleEl) titleEl.textContent='Gasto mensual vs objetivo '+fmt(dynLimit);
+  mkCh('cExpM',{type:'bar',data:{labels:m.map(x=>x.month.slice(0,3)+' '+x.year),datasets:[{label:'Gasto real',data:m.map(x=>x.expenses),backgroundColor:m.map(x=>x.expenses>dynLimit*1.25?'rgba(240,83,83,0.75)':x.expenses>dynLimit?'rgba(245,166,35,0.7)':'rgba(34,212,122,0.6)'),borderRadius:4},{label:limitLbl,data:m.map(()=>dynLimit),type:'line',borderColor:'rgba(245,166,35,0.6)',borderDash:[5,4],pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,font:{size:10}}}},scales:{x:xO,y:yO}}});
   const dowMap={0:0,1:0,2:0,3:0,4:0,5:0,6:0};
   re.forEach(t=>{const d=new Date(t.date+'T12:00:00');dowMap[d.getDay()]+=t.amount;});
   const maxD=Math.max(...Object.values(dowMap));
