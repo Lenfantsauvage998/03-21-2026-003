@@ -240,14 +240,15 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
   <div class="nav-inner">
     <div class="nav-logo">DFG<span>.finance</span></div>
     <div class="nav-links">
-      <button class="nl active" onclick="goTo('overview')">Overview</button>
-      <button class="nl" onclick="goTo('flujo')">Flujo</button>
-      <button class="nl" onclick="goTo('gastos')">Gastos</button>
-      <button class="nl" onclick="goTo('proyeccion')">50M</button>
-      <button class="nl" onclick="goTo('diario')">Diario <span class="nb">LIVE</span></button>
-      <button class="nl" onclick="goTo('perfecto')">Mes Perfecto</button>
-      <button class="nl" onclick="goTo('montecarlo')">Portafolios</button><button class="nl" onclick="goTo('calculator')">Calc</button>
-      <button class="nl" onclick="goTo('insights')">Insights</button>
+      <button class="nl active" data-nav-module="overview" onclick="goTo('overview')">Overview</button>
+      <button class="nl" data-nav-module="flujo" onclick="goTo('flujo')">Flujo</button>
+      <button class="nl" data-nav-module="gastos" onclick="goTo('gastos')">Gastos</button>
+      <button class="nl" data-nav-module="proyeccion" onclick="goTo('proyeccion')">50M</button>
+      <button class="nl" data-nav-module="diario" onclick="goTo('diario')">Diario <span class="nb">LIVE</span></button>
+      <button class="nl" data-nav-module="mes_perfecto" onclick="goTo('perfecto')">Mes Perfecto</button>
+      <button class="nl" data-nav-module="montecarlo" onclick="goTo('montecarlo')">Portafolios</button><button class="nl" data-nav-module="calculator" onclick="goTo('calculator')">Calc</button>
+      <button class="nl" data-nav-module="insights" onclick="goTo('insights')">Insights</button>
+      <button class="nl" data-nav-module="predictor" onclick="goTo('predictor')">Predictor</button>
     </div>
   </div>
 </nav>
@@ -290,7 +291,7 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
     <p class="ssub">Datos directos de Supabase · monthly_balance</p>
     <div class="g64">
       <div class="card"><div class="ct">Net worth mes a mes</div><div class="chart-wrap" style="height:220px"><canvas id="cNW"></canvas></div></div>
-      <div class="card"><div class="ct">Salary Affirm</div><div id="salaryList" class="tl" style="margin-top:6px"></div></div>
+      <div class="card" data-module="overview" data-feature="salary_timeline"><div class="ct">Salary Affirm</div><div id="salaryList" class="tl" style="margin-top:6px"></div></div>
     </div>
   </div>
 </div>
@@ -304,7 +305,7 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
       <div class="card"><div class="ct">Ingresos vs Gastos vs Ahorro</div><div class="chart-wrap" style="height:220px"><canvas id="cFlujo"></canvas></div></div>
       <div class="card"><div class="ct">Fuentes de ingreso</div><div class="chart-wrap" style="height:220px"><canvas id="cSrc"></canvas></div></div>
     </div>
-    <div class="card"><div class="ct">Rendimientos 9% APY</div><div id="intGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px"></div></div>
+    <div class="card" data-module="flujo" data-feature="interest_yield_grid"><div class="ct">Rendimientos 9% APY</div><div id="intGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px"></div></div>
   </div>
 </div>
 
@@ -315,7 +316,7 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
       <div class="section-header" style="margin-bottom:0">
         <span class="snum">03</span><h2 class="stitle" style="display:inline">Análisis de Gastos</h2>
       </div>
-      <select id="gastosMonthFilter" onchange="renderGastos()"></select>
+      <select id="gastosMonthFilter" data-module="gastos" data-feature="month_filter" onchange="renderGastos()"></select>
     </div>
     <p class="ssub">Gastos reales — excluye transfers e impuestos</p>
     <div class="g64" style="margin-bottom:12px">
@@ -327,10 +328,10 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
       <div class="card">
         <div class="ct">Gasto mensual vs límite $400K</div>
         <div class="chart-wrap" style="height:160px"><canvas id="cExpM"></canvas></div>
-        <div style="margin-top:14px"><div class="ct">Por día de la semana</div><div class="dow-grid" id="dowGrid" style="margin-top:8px"></div></div>
+        <div style="margin-top:14px" data-module="gastos" data-feature="day_of_week_grid"><div class="ct">Por día de la semana</div><div class="dow-grid" id="dowGrid" style="margin-top:8px"></div></div>
       </div>
     </div>
-    <div class="card">
+    <div class="card" data-module="gastos" data-feature="top10_table">
       <div class="ct" id="topTblTitle">Top 10 gastos individuales</div>
       <div class="table-wrap"><table><thead><tr><th>#</th><th>Fecha</th><th>Descripción</th><th>Cat.</th><th style="text-align:right">Monto</th></tr></thead><tbody id="topTbl"></tbody></table></div>
     </div>
@@ -345,7 +346,7 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
 
     <!-- Meta + APY controls -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-      <div style="background:var(--bg3);border:1px solid var(--b);border-radius:10px;padding:14px">
+      <div style="background:var(--bg3);border:1px solid var(--b);border-radius:10px;padding:14px" data-module="proyeccion" data-feature="goal_slider">
         <label style="font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.07em;display:flex;justify-content:space-between;margin-bottom:8px">
           Meta de ahorro (COP)
           <span id="targetDisplayLabel" style="color:var(--am);font-family:'Syne',sans-serif;font-size:14px;font-weight:700">$50M</span>
@@ -357,7 +358,7 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
           <span>$10M</span><span>$200M</span>
         </div>
       </div>
-      <div style="background:var(--bg3);border:1px solid var(--b);border-radius:10px;padding:14px">
+      <div style="background:var(--bg3);border:1px solid var(--b);border-radius:10px;padding:14px" data-module="proyeccion" data-feature="apy_slider">
         <label style="font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.07em;display:flex;justify-content:space-between;margin-bottom:8px">
           APY anual (%)
           <span id="apyDisplayLabel" style="color:var(--tl);font-family:'Syne',sans-serif;font-size:14px;font-weight:700">9.0%</span>
@@ -382,7 +383,7 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
     <div class="section-header"><span class="snum">05</span><h2 class="stitle">Diario de Transacciones</h2></div>
     <p class="ssub">Guarda directamente en Supabase</p>
     <div class="g2">
-      <div class="card" style="border-color:rgba(124,92,252,0.3)">
+      <div class="card" style="border-color:rgba(124,92,252,0.3)" data-module="diario" data-feature="transaction_form">
         <div class="ct">Nueva transacción</div>
         <div style="display:flex;gap:0;margin-bottom:14px;background:var(--bg3);border-radius:10px;padding:3px">
           <button id="btnExp" class="type-btn" onclick="setType('expense')" style="background:var(--rd);color:#fff">− Gasto</button>
@@ -421,7 +422,7 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
               <select id="histFilter" onchange="renderDiario()"
                 style="padding:5px 9px;background:var(--bg3);border:1px solid var(--b2);border-radius:7px;color:var(--t);font-family:'JetBrains Mono',monospace;font-size:10px;outline:none;cursor:pointer;-webkit-appearance:none">
               </select>
-              <button class="btn-sm" onclick="exportCSV()">↓ CSV</button>
+              <button class="btn-sm" data-module="diario" data-feature="csv_export" onclick="exportCSV()">↓ CSV</button>
             </div>
           </div>
           <div id="txHistory" style="max-height:340px;overflow-y:auto;-webkit-overflow-scrolling:touch"></div>
@@ -462,7 +463,7 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
     </div>
 
     <!-- Score cards -->
-    <div class="card" style="margin-bottom:14px">
+    <div class="card" style="margin-bottom:14px" data-module="mes_perfecto" data-feature="score_cards">
       <div class="ct">Score financiero mensual</div>
       <div class="score-grid" id="scoreCards"></div>
       <div style="margin-top:12px;padding:10px 12px;background:var(--bg3);border-radius:8px;font-size:11px;color:var(--m);line-height:1.7">
@@ -471,7 +472,7 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
     </div>
 
     <!-- Counterfactual -->
-    <div class="card">
+    <div class="card" data-module="mes_perfecto" data-feature="counterfactual">
       <div class="ct">¿Dónde estarías si siempre hubieras sido perfecto?</div>
       <div class="counterfact-grid" style="margin-bottom:14px">
         <div class="cf-card" style="background:var(--bg3);border:1px solid var(--b)"><div style="font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px">Capital real hoy</div><div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--t)" id="cfReal">...</div><div style="font-size:10px;color:var(--m);margin-top:4px">Lo que tienes</div></div>
@@ -494,7 +495,7 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
     <p class="ssub">Simulación Monte Carlo · 800 trayectorias · retornos históricos reales</p>
 
     <!-- Portfolio selector -->
-    <div class="g3" style="margin-bottom:14px" id="portSelector">
+    <div class="g3" style="margin-bottom:14px" id="portSelector" data-module="montecarlo" data-feature="portfolio_selector">
       <div class="scenario" id="port0" onclick="selectPort(0)" style="cursor:pointer;border-color:rgba(45,212,191,0.4);background:rgba(45,212,191,0.04)">
         <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--tl);margin-bottom:4px">Conservador</div>
         <div style="font-size:11px;color:var(--m);margin-bottom:8px">CDTs 60% · ETF Bonos 30% · Cash 10%</div>
@@ -582,7 +583,7 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
   <div class="wrap">
     <div class="section-header"><span class="snum">08</span><h2 class="stitle">Calculadora de Ahorro</h2></div>
     <p class="ssub">Capital base real desde Supabase · Recalcula en tiempo real</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px" data-module="calculator" data-feature="capital_summary">
       <div style="background:rgba(34,212,122,0.07);border:1px solid rgba(34,212,122,0.25);border-radius:12px;padding:14px;text-align:center"><div style="font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">Capital actual</div><div id="calcCap" style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--gr)">...</div></div>
       <div style="background:var(--bg3);border:1px solid rgba(45,212,191,0.25);border-radius:12px;padding:14px;text-align:center"><div style="font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">Interés/mes</div><div id="calcInt" style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--tl)">...</div></div>
       <div style="background:var(--bg3);border:1px solid var(--b);border-radius:12px;padding:14px;text-align:center"><div style="font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">Ahorro promedio</div><div id="calcAvg" style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--ac2)">...</div></div>
@@ -626,6 +627,33 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
   </div>
 </div>
 
+<!-- 10 PREDICTOR DE AHORRO -->
+<div class="section" id="predictor" data-module="predictor">
+  <div class="wrap">
+    <div class="section-header"><span class="snum">10</span><h2 class="stitle">Predictor de Ahorro</h2></div>
+    <p class="ssub">Reducción gradual · modelo estadístico sobre tus datos reales · sin IA externa</p>
+
+    <div class="kpi-grid" id="predKpis" style="margin-bottom:14px"></div>
+
+    <div class="card" style="margin-bottom:12px">
+      <div class="ct" id="predChartTitle">Gasto real vs trayectoria objetivo</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="cPred"></canvas></div>
+    </div>
+
+    <div class="g64">
+      <div class="card">
+        <div class="ct">Objetivo por categoría — próximo mes</div>
+        <div id="predCatBars" style="margin-bottom:12px"></div>
+        <div id="predNudge" style="padding:10px 12px;background:var(--bg3);border-radius:8px;font-size:11px;color:var(--m);line-height:1.7"></div>
+      </div>
+      <div class="card">
+        <div class="ct">Impacto si alcanzas el objetivo</div>
+        <div id="predImpact"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <footer style="padding:24px 0;text-align:center;font-size:11px;color:var(--m);border-top:1px solid var(--b);">
   <div class="wrap">
     <div style="margin-bottom:5px">DFG Finance OS · <span id="footerTs"></span></div>
@@ -635,11 +663,12 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
 
 <!-- BOTTOM TAB BAR (mobile) -->
 <div class="tab-bar" id="tabBar">
-  <button class="tab-item active" onclick="goTo('home');setTab(0)"><span class="tab-icon">⌂</span>Home</button>
-  <button class="tab-item" onclick="goTo('flujo');setTab(1)"><span class="tab-icon">↕</span>Flujo</button>
-  <button class="tab-item" onclick="goTo('diario');setTab(2)"><span class="tab-icon">+</span>Diario</button>
-  <button class="tab-item" onclick="goTo('perfecto');setTab(3)"><span class="tab-icon">★</span>Perfecto</button>
-  <button class="tab-item" onclick="goTo('montecarlo');setTab(4)"><span class="tab-icon">📈</span>MC</button>
+  <button class="tab-item active" data-module="home" onclick="goTo('home');setTab(0)"><span class="tab-icon">⌂</span>Home</button>
+  <button class="tab-item" data-module="flujo" onclick="goTo('flujo');setTab(1)"><span class="tab-icon">↕</span>Flujo</button>
+  <button class="tab-item" data-module="diario" onclick="goTo('diario');setTab(2)"><span class="tab-icon">+</span>Diario</button>
+  <button class="tab-item" data-module="mes_perfecto" onclick="goTo('perfecto');setTab(3)"><span class="tab-icon">★</span>Perfecto</button>
+  <button class="tab-item" data-module="montecarlo" onclick="goTo('montecarlo');setTab(4)"><span class="tab-icon">📈</span>MC</button>
+  <button class="tab-item" data-module="predictor" onclick="goTo('predictor');setTab(5)"><span class="tab-icon">🎯</span>Target</button>
 </div>
 
 <script>
@@ -701,12 +730,86 @@ function setSplash(txt){ document.getElementById('splashTxt').textContent=txt; }
 // ══════════════════════════════════════════════════════════
 //  GLOBAL STATE
 // ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
+//  MODULE CONFIG SYSTEM
+// ══════════════════════════════════════════════════════════
+let CFG          = null;
+let BUDGET_LIMIT = 400000;    // monthly expense limit  — set by client.json
+let OPTIMAL_BUDGET = 232000;  // perfect-month budget   — set by client.json
+
+const MODULE_SECTION = {
+  home:'home', overview:'overview', flujo:'flujo', gastos:'gastos',
+  proyeccion:'proyeccion', diario:'diario', mes_perfecto:'perfecto',
+  montecarlo:'montecarlo', calculator:'calculator', insights:'insights',
+  predictor:'predictor',
+};
+
+const DEFAULT_CFG = {
+  client:{id:'default',name:'Usuario',branding:{app_title:'DFG Finance OS',goal_amount:50000000,budget_limit:400000,optimal_budget:232000}},
+  modules:{
+    home:{enabled:true,features:{kpi_networth:true,kpi_salary:true,kpi_interests:true,kpi_shopping:true,goal_progress_bar:true}},
+    overview:{enabled:true,features:{networth_chart:true,salary_timeline:true}},
+    flujo:{enabled:true,features:{cashflow_chart:true,income_sources_chart:true,interest_yield_grid:true}},
+    gastos:{enabled:true,features:{month_filter:true,category_bars:true,category_donut:true,monthly_limit_chart:true,day_of_week_grid:true,top10_table:true}},
+    proyeccion:{enabled:true,features:{goal_slider:true,apy_slider:true,scenario_cards:true,projection_chart:true}},
+    diario:{enabled:true,features:{transaction_form:true,month_summary:true,history:true,csv_export:true}},
+    mes_perfecto:{enabled:true,features:{kpi_cards:true,perfect_breakdown:true,distance_bars:true,real_vs_optimal_chart:true,score_cards:true,counterfactual:true}},
+    montecarlo:{enabled:true,features:{portfolio_selector:true,sliders:true,simulation_chart:true,percentile_results:true,probability_bars:true}},
+    calculator:{enabled:true,features:{capital_summary:true,sliders:true,projection_chart:true,yearly_bar_chart:true,milestones:true}},
+    insights:{enabled:true},
+    predictor:{enabled:true},
+  },
+  future_modules:{
+    voice_input:{enabled:false},
+    budget_alerts:{enabled:false},
+    multi_currency:{enabled:false},
+    ai_summary:{enabled:false},
+  },
+  nav:{mobile_tabs:['home','flujo','diario','mes_perfecto','montecarlo','predictor']},
+};
+
+function applyConfig(cfg){
+  const b=cfg.client?.branding||{};
+  if(b.goal_amount)    USER_TARGET    =b.goal_amount;
+  if(b.budget_limit)   BUDGET_LIMIT   =b.budget_limit;
+  if(b.optimal_budget) OPTIMAL_BUDGET =b.optimal_budget;
+  if(b.app_title)      document.title =b.app_title;
+  // Sections + sub-features
+  Object.entries(cfg.modules||{}).forEach(([key,mod])=>{
+    const sid=MODULE_SECTION[key]||key;
+    const el=document.getElementById(sid);
+    if(el) el.style.display=mod.enabled?'':'none';
+    if(mod.features) Object.entries(mod.features).forEach(([feat,on])=>{
+      document.querySelectorAll(`[data-module="${key}"][data-feature="${feat}"]`)
+        .forEach(e=>{ e.style.display=on?'':'none'; });
+    });
+  });
+  // Future modules
+  Object.entries(cfg.future_modules||{}).forEach(([key,mod])=>{
+    const el=document.getElementById(key); if(el) el.style.display=mod.enabled?'':'none';
+  });
+  // Desktop nav links
+  document.querySelectorAll('[data-nav-module]').forEach(link=>{
+    const key=link.dataset.navModule;
+    const mod=cfg.modules?.[key];
+    if(mod!==undefined) link.style.display=mod.enabled?'':'none';
+  });
+  // Mobile tab bar
+  const tabs=cfg.nav?.mobile_tabs||Object.keys(MODULE_SECTION);
+  document.querySelectorAll('.tab-item[data-module]').forEach(btn=>{
+    btn.style.display=tabs.includes(btn.dataset.module)?'':'none';
+  });
+}
+
 let DB = {};
 
 // ══════════════════════════════════════════════════════════
 //  LOAD ALL DATA
 // ══════════════════════════════════════════════════════════
 async function loadAll() {
+  // Fetch client config — fallback to DEFAULT_CFG on any error
+  try{const r=await fetch('client.json');CFG=r.ok?await r.json():DEFAULT_CFG;}catch{CFG=DEFAULT_CFG;}
+  applyConfig(CFG);
   setSplash('Conectando a Supabase...');
   setProgress(10);
   try {
@@ -766,17 +869,19 @@ function buildMonthly(txs) {
 //  RENDER ALL
 // ══════════════════════════════════════════════════════════
 function renderAll() {
-  recalcBalance();   // always recompute from transactions before rendering
-  renderHero();
-  renderOverview();
-  renderFlujo();
-  renderGastos();
-  renderProyeccion();
-  renderDiario();
-  renderPerfecto();
-  renderCalculadora();
-  renderInsights();
-  updateMC();
+  recalcBalance();
+  const M=CFG?.modules||{};
+  if(M.home?.enabled!==false)         renderHero();
+  if(M.overview?.enabled!==false)     renderOverview();
+  if(M.flujo?.enabled!==false)        renderFlujo();
+  if(M.gastos?.enabled!==false)       renderGastos();
+  if(M.proyeccion?.enabled!==false)   renderProyeccion();
+  if(M.diario?.enabled!==false)       renderDiario();
+  if(M.mes_perfecto?.enabled!==false) renderPerfecto();
+  if(M.calculator?.enabled!==false)   renderCalculadora();
+  if(M.insights?.enabled!==false)     renderInsights();
+  if(M.montecarlo?.enabled!==false)   updateMC();
+  if(M.predictor?.enabled!==false)    renderPredictor();
   document.getElementById('footerTs').textContent = new Date().toLocaleString('es-CO');
 }
 
@@ -1665,12 +1770,209 @@ function renderInsights(){
 
 
 // ══════════════════════════════════════════════════════════
+//  PREDICTOR DE AHORRO
+// ══════════════════════════════════════════════════════════
+function buildPrediction(){
+  const allMonths=DB.monthly;
+  if(!allMonths||allMonths.length<2) return null;
+
+  // Real expenses per month key (excl. Taxes/Transfers already in DB.real_exp)
+  const monthlyReal={};
+  allMonths.forEach(m=>{
+    const k=`${m.month}-${m.year}`;
+    monthlyReal[k]=DB.real_exp
+      .filter(t=>t.month===m.month&&t.year===m.year)
+      .reduce((s,t)=>s+t.amount,0);
+  });
+
+  // Weighted prediction: last 3 months — most recent=50%, prev=30%, oldest=20%
+  const W=[0.50,0.30,0.20];
+  const recent=allMonths.slice(-3).reverse(); // most recent first
+  const pred=recent.reduce((s,m,i)=>s+(monthlyReal[`${m.month}-${m.year}`]||0)*W[i],0);
+
+  // Linear regression slope across all months (COP/month — trend direction)
+  const expArr=allMonths.map(m=>monthlyReal[`${m.month}-${m.year}`]||0);
+  const n=expArr.length;
+  const xM=(n-1)/2, yM=expArr.reduce((s,v)=>s+v,0)/n;
+  let num=0,den=0;
+  expArr.forEach((y,x)=>{num+=(x-xM)*(y-yM);den+=(x-xM)**2;});
+  const slope=den?num/den:0;
+
+  // Improvement check: did last month spend less than the one before?
+  const last2=allMonths.slice(-2);
+  const improved=last2.length===2&&
+    (monthlyReal[`${last2[1].month}-${last2[1].year}`]||0)<
+    (monthlyReal[`${last2[0].month}-${last2[0].year}`]||0);
+
+  // Step-down rate: 5% base, 8% reward for improving
+  const stepRate=improved?0.08:0.05;
+  const target=pred*(1-stepRate);
+
+  // Per-category average over last 3 months
+  const last3Keys=allMonths.slice(-3).map(m=>`${m.month}-${m.year}`);
+  const catByMonth={};
+  DB.real_exp.forEach(t=>{
+    const k=`${t.month}-${t.year}`;
+    if(!last3Keys.includes(k)) return;
+    if(!catByMonth[t.category]) catByMonth[t.category]={};
+    catByMonth[t.category][k]=(catByMonth[t.category][k]||0)+t.amount;
+  });
+  const catAvg={},catTarget={};
+  Object.entries(catByMonth).forEach(([cat,byM])=>{
+    const v=last3Keys.reduce((s,k)=>s+(byM[k]||0),0)/3;
+    catAvg[cat]=v; catTarget[cat]=v*(1-stepRate);
+  });
+
+  // Streak: consecutive months where spending was lower than the month before
+  let streak=0;
+  for(let i=allMonths.length-1;i>0;i--){
+    const cur=monthlyReal[`${allMonths[i].month}-${allMonths[i].year}`]||0;
+    const prev=monthlyReal[`${allMonths[i-1].month}-${allMonths[i-1].year}`]||0;
+    if(cur>0&&prev>0&&cur<prev) streak++; else break;
+  }
+
+  // Impact
+  const avgSave=allMonths.reduce((s,m)=>s+(m.income-m.expenses),0)/(n||1);
+  const monthlySaving=Math.max(0,pred-target);
+
+  return{pred,target,stepRate,improved,slope,monthlySaving,catAvg,catTarget,streak,monthlyReal,allMonths,avgSave};
+}
+
+function renderPredictor(){
+  const p=buildPrediction();
+  const kpiEl=document.getElementById('predKpis');
+  if(!p){
+    if(kpiEl) kpiEl.innerHTML='<div style="color:var(--m);font-size:12px;padding:20px;grid-column:1/-1;text-align:center">Necesitas al menos 2 meses de datos para activar el predictor.</div>';
+    return;
+  }
+
+  const{pred,target,stepRate,improved,slope,monthlySaving,catAvg,catTarget,streak,monthlyReal,allMonths,avgSave}=p;
+  const stepPct=(stepRate*100).toFixed(0);
+  const trendCol=slope<-2000?'var(--gr)':slope>2000?'var(--rd)':'var(--am)';
+  const trendTxt=slope<-2000?'↓ Mejorando':slope>2000?'↑ Subiendo':'→ Estable';
+
+  // ── KPI cards ──
+  if(kpiEl) kpiEl.innerHTML=`
+    <div class="kpi fu" style="--kc:var(--ac2)">
+      <div class="kpi-l">Gasto proyectado</div>
+      <div class="kpi-v" style="color:var(--ac2)">${fmt(pred)}</div>
+      <div class="kpi-s">próximo mes (est.)</div>
+    </div>
+    <div class="kpi fu" style="--kc:var(--gr)">
+      <div class="kpi-l">Tu objetivo</div>
+      <div class="kpi-v" style="color:var(--gr)">${fmt(target)}</div>
+      <div class="kpi-s">−${stepPct}% del proyectado${improved?' ↑ bonus':''}</div>
+    </div>
+    <div class="kpi fu" style="--kc:var(--am)">
+      <div class="kpi-l">Ahorro potencial/mes</div>
+      <div class="kpi-v" style="color:var(--am)">${fmt(monthlySaving)}</div>
+      <div class="kpi-s">si llegas al objetivo</div>
+    </div>
+    <div class="kpi fu" style="--kc:${trendCol}">
+      <div class="kpi-l">Tendencia</div>
+      <div class="kpi-v" style="color:${trendCol};font-size:16px">${trendTxt}</div>
+      <div class="kpi-s">${slope>0?'+':''}${fmt(Math.abs(slope))}/mes</div>
+    </div>`;
+
+  // ── Trajectory chart ──
+  const pastLabels=allMonths.map(m=>m.month.slice(0,3)+' '+m.year);
+  const pastVals=allMonths.map(m=>monthlyReal[`${m.month}-${m.year}`]||0);
+
+  // 3 future target points stepping down month by month
+  const now=new Date();
+  const futureLabels=[],futureTargets=[];
+  for(let i=1;i<=3;i++){
+    const d=new Date(now);d.setMonth(d.getMonth()+i);
+    futureLabels.push(d.toLocaleString('es',{month:'short',year:'2-digit'}));
+    futureTargets.push(Math.round(target*Math.pow(1-stepRate,i-1)));
+  }
+
+  const allLabels=[...pastLabels,'▶ Pred',...futureLabels];
+  const actualData=[...pastVals,pred,...Array(3).fill(null)];
+  const targetData=[...Array(pastVals.length).fill(null),pred,...futureTargets];
+  const optimalData=allLabels.map(()=>OPTIMAL_BUDGET);
+
+  mkCh('cPred',{type:'line',
+    data:{labels:allLabels,datasets:[
+      {label:'Gasto real',data:actualData,borderColor:'#a78bfa',backgroundColor:'rgba(124,92,252,0.08)',fill:true,tension:.4,
+       pointBackgroundColor:actualData.map((_,i)=>i===pastVals.length?'#f5a623':'#a78bfa'),
+       pointRadius:actualData.map((_,i)=>i===pastVals.length?8:4),
+       pointBorderColor:'#fff',pointBorderWidth:2,spanGaps:false},
+      {label:'Objetivo paso a paso',data:targetData,borderColor:'#22d47a',borderDash:[6,4],borderWidth:2,
+       pointRadius:4,pointBackgroundColor:'#22d47a',pointBorderColor:'#fff',pointBorderWidth:2,
+       fill:false,tension:.3,spanGaps:false},
+      {label:`Óptimo ${fmt(OPTIMAL_BUDGET)}`,data:optimalData,borderColor:'rgba(45,212,191,0.45)',
+       borderDash:[3,3],borderWidth:1,pointRadius:0,fill:false,tension:0},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},
+      plugins:{legend:{labels:{boxWidth:12,font:{size:10}}}},
+      scales:{x:{...xO,ticks:{...xO.ticks,maxRotation:45}},y:yO}}});
+
+  // ── Category nudge bars ──
+  const catsSorted=Object.entries(catAvg).sort((a,b)=>b[1]-a[1]);
+  const maxCat=catsSorted[0]?.[1]||1;
+  const catEl=document.getElementById('predCatBars');
+  if(catEl) catEl.innerHTML=catsSorted.map(([cat,avg])=>{
+    const t=catTarget[cat]||0;
+    const col=CAT_COL[cat]||'#888';
+    const saving=avg-t;
+    return`<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+        <span style="color:var(--t);font-weight:500">${cat}</span>
+        <span style="color:var(--m)">${fmt(avg)} → <strong style="color:var(--gr)">${fmt(t)}</strong></span>
+      </div>
+      <div style="width:100%;height:7px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;position:relative">
+        <div style="position:absolute;height:100%;width:${(avg/maxCat*100).toFixed(0)}%;background:${col}44;border-radius:4px"></div>
+        <div style="position:absolute;height:100%;width:${(t/maxCat*100).toFixed(0)}%;background:${col};border-radius:4px"></div>
+      </div>
+      <div style="font-size:10px;color:var(--m);margin-top:3px">Ahorra ${fmt(saving)}/mes alcanzando el objetivo</div>
+    </div>`;
+  }).join('');
+
+  // Nudge message
+  const topCat=catsSorted[0];
+  const hasShop=catsSorted.find(([c])=>c==='Shopping');
+  const nudgeEl=document.getElementById('predNudge');
+  if(nudgeEl) nudgeEl.innerHTML=
+    (improved?`<strong style="color:var(--gr)">✓ Mejorando:</strong> el mes pasado gastaste menos — objetivo reforzado a −${stepPct}%.`
+             :`<strong style="color:var(--am)">Tip:</strong> Reduce un gasto fijo este mes para arrancar la racha.`)+
+    (hasShop?` <span style="color:var(--rd)">Shopping (${fmt(hasShop[1])}/mes) es tu mayor palanca.</span>`:'  ')+
+    (streak>1?` <span style="color:var(--tl)">🔥 ${streak} ${streak===1?'mes':'meses'} consecutivos mejorando.</span>`:'');
+
+  // ── Impact card ──
+  const annualSaving=monthlySaving*12;
+  const goalGap=Math.max(0,USER_TARGET-DB.curBal);
+  const mthsWith=avgSave+monthlySaving>0?Math.ceil(goalGap/(avgSave+monthlySaving)):999;
+  const mthsWithout=avgSave>0?Math.ceil(goalGap/avgSave):999;
+  const mthsAhead=Math.max(0,mthsWithout-mthsWith);
+  const impEl=document.getElementById('predImpact');
+  if(impEl) impEl.innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr;gap:10px">
+      <div style="background:rgba(34,212,122,0.07);border:1px solid rgba(34,212,122,0.25);border-radius:10px;padding:16px;text-align:center">
+        <div style="font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Ahorro extra / año</div>
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--gr)">${fmt(annualSaving)}</div>
+        <div style="font-size:10px;color:var(--m);margin-top:4px">cumpliendo el objetivo cada mes</div>
+      </div>
+      <div style="background:rgba(124,92,252,0.07);border:1px solid rgba(124,92,252,0.25);border-radius:10px;padding:16px;text-align:center">
+        <div style="font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Llegas a la meta en</div>
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--ac2)">${mthsWith >= 999 ? '∞' : mthsWith+' meses'}</div>
+        <div style="font-size:10px;color:var(--m);margin-top:4px">vs ${mthsWithout>=999?'∞':mthsWithout+' meses'} sin optimizar</div>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--b);border-radius:10px;padding:16px;text-align:center">
+        <div style="font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Meses adelantados</div>
+        <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--am)">${mthsAhead}</div>
+        <div style="font-size:10px;color:var(--m);margin-top:4px">si cumples el objetivo siempre</div>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════════
 //  NAV
 // ══════════════════════════════════════════════════════════
 function goTo(id){const el=document.getElementById(id);if(el)el.scrollIntoView({behavior:'smooth',block:'start'});}
 function setTab(i){document.querySelectorAll('.tab-item').forEach((b,j)=>b.classList.toggle('active',j===i));}
 window.addEventListener('scroll',()=>{
-  const ids=['home','overview','flujo','gastos','proyeccion','diario','perfecto','calculator','insights'];
+  const ids=['home','overview','flujo','gastos','proyeccion','diario','perfecto','calculator','insights','predictor'];
   const links=document.querySelectorAll('.nl');
   let ai=0;
   ids.forEach((id,i)=>{const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<130)ai=i;});

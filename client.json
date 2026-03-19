@@ -1,0 +1,143 @@
+{
+  "client": {
+    "id": "dfg-daniel",
+    "name": "Daniel Figueredo",
+    "branding": {
+      "app_title": "DFG Finance OS",
+      "hero_name": "Daniel Figueredo",
+      "goal_amount": 50000000,
+      "goal_label": "Meta 50M",
+      "budget_limit": 400000,
+      "optimal_budget": 232000,
+      "currency": "COP"
+    }
+  },
+
+  "modules": {
+    "home": {
+      "enabled": true,
+      "label": "Home",
+      "features": {
+        "kpi_networth": true,
+        "kpi_salary": true,
+        "kpi_interests": true,
+        "kpi_shopping": true,
+        "goal_progress_bar": true
+      }
+    },
+    "overview": {
+      "enabled": true,
+      "label": "Overview",
+      "features": {
+        "networth_chart": true,
+        "salary_timeline": true
+      }
+    },
+    "flujo": {
+      "enabled": true,
+      "label": "Flujo",
+      "features": {
+        "cashflow_chart": true,
+        "income_sources_chart": true,
+        "interest_yield_grid": true
+      }
+    },
+    "gastos": {
+      "enabled": true,
+      "label": "Gastos",
+      "features": {
+        "month_filter": true,
+        "category_bars": true,
+        "category_donut": true,
+        "monthly_limit_chart": true,
+        "day_of_week_grid": true,
+        "top10_table": true
+      }
+    },
+    "proyeccion": {
+      "enabled": true,
+      "label": "Proyección",
+      "features": {
+        "goal_slider": true,
+        "apy_slider": true,
+        "scenario_cards": true,
+        "projection_chart": true
+      }
+    },
+    "diario": {
+      "enabled": true,
+      "label": "Diario",
+      "features": {
+        "transaction_form": true,
+        "month_summary": true,
+        "history": true,
+        "csv_export": true
+      }
+    },
+    "mes_perfecto": {
+      "enabled": true,
+      "label": "Mes Perfecto",
+      "features": {
+        "kpi_cards": true,
+        "perfect_breakdown": true,
+        "distance_bars": true,
+        "real_vs_optimal_chart": true,
+        "score_cards": true,
+        "counterfactual": true
+      }
+    },
+    "montecarlo": {
+      "enabled": true,
+      "label": "Portafolios",
+      "features": {
+        "portfolio_selector": true,
+        "sliders": true,
+        "simulation_chart": true,
+        "percentile_results": true,
+        "probability_bars": true
+      }
+    },
+    "calculator": {
+      "enabled": true,
+      "label": "Calculadora",
+      "features": {
+        "capital_summary": true,
+        "sliders": true,
+        "projection_chart": true,
+        "yearly_bar_chart": true,
+        "milestones": true
+      }
+    },
+    "insights": {
+      "enabled": true,
+      "label": "Insights"
+    },
+    "predictor": {
+      "enabled": true,
+      "label": "Predictor"
+    }
+  },
+
+  "future_modules": {
+    "voice_input": {
+      "enabled": false,
+      "description": "Entrada de voz via Web Speech API para registrar transacciones"
+    },
+    "budget_alerts": {
+      "enabled": false,
+      "description": "Notificaciones push al superar límites de categoría"
+    },
+    "multi_currency": {
+      "enabled": false,
+      "description": "Conversión USD/EUR/COP en tiempo real"
+    },
+    "ai_summary": {
+      "enabled": false,
+      "description": "Resumen financiero mensual generado por IA"
+    }
+  },
+
+  "nav": {
+    "mobile_tabs": ["home", "flujo", "diario", "mes_perfecto", "montecarlo", "predictor"]
+  }
+}
