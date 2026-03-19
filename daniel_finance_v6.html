@@ -1110,6 +1110,19 @@ function applyConfig(cfg){
   document.querySelectorAll('.tab-item[data-module]').forEach(btn=>{
     btn.style.display=tabs.includes(btn.dataset.module)?'':'none';
   });
+  // Re-sequence section numbers based on which sections are visible
+  renumberSections();
+}
+
+// Walks every .snum in DOM order, skips hidden sections,
+// and assigns 01 02 03 … to whatever is actually visible.
+function renumberSections(){
+  let n=1;
+  document.querySelectorAll('.snum').forEach(el=>{
+    const section=el.closest('.section');
+    if(section && section.style.display==='none') return;
+    el.textContent=String(n++).padStart(2,'0');
+  });
 }
 
 let DB = {};
