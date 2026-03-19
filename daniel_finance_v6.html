@@ -923,7 +923,7 @@ function renderOverview() {
   const values=bal.map(b=>b.balance);
   mkCh('cNW',{type:'line',data:{labels,datasets:[{label:'Net Worth',data:values,borderColor:'#7c5cfc',backgroundColor:'rgba(124,92,252,0.1)',fill:true,tension:.4,pointBackgroundColor:'#7c5cfc',pointBorderColor:'#fff',pointBorderWidth:2,pointRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtF(c.raw)+' COP'}}},scales:{x:xO,y:yO}}});
 
-  const salTx=DB.income.filter(t=>(t.subcategory||'').toLowerCase()==='salary').sort((a,b)=>a.date.localeCompare(b.date));
+  const salTx=DB.income.filter(t=>(t.subcategory||'').toLowerCase()==='salary').sort((a,b)=>a.date.localeCompare(b.date)).slice(-3);
   const cols=['#6b7280','#4d9fff','#a78bfa','#f5a623','#22d47a'];
   document.getElementById('salaryList').innerHTML=salTx.map((t,i)=>`
     <div class="tl-item"><div class="tl-dot" style="background:${cols[i%cols.length]}"></div>
