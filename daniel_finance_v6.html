@@ -35,9 +35,14 @@
   --ac-glow:rgba(124,92,252,0.08);
   --focus-bd:rgba(124,92,252,0.50);
   --font-body:'JetBrains Mono',monospace;
+  --font-display:'Syne',sans-serif;
   --grid-c:rgba(255,255,255,0.04);
   --tick-c:#6b6d7e;
   --radius-card:14px;
+  /* PIN screen specific */
+  --pin-bg:var(--bg);
+  --pin-card-bg:var(--bg2);
+  --pin-shadow:none;
 }
 
 /* ════════════════════════════════════════════════════
@@ -59,6 +64,9 @@
   --ac-glow:rgba(201,168,76,0.08);
   --focus-bd:rgba(201,168,76,0.50);
   --radius-card:8px;
+  /* carbon PIN: near-black stage, dark card */
+  --pin-bg:#040404;
+  --pin-card-bg:#0d0d0d;
 }
 
 /* ════════════════════════════════════════════════════
@@ -126,6 +134,10 @@
   --grid-c:rgba(0,0,0,0.06);
   --tick-c:#6b7280;
   --radius-card:16px;
+  /* arctic PIN: soft blue-gray background, pure white card, elevated shadow */
+  --pin-bg:#d8dff0;
+  --pin-card-bg:#ffffff;
+  --pin-shadow:0 24px 64px rgba(37,99,235,0.13),0 4px 20px rgba(0,0,0,0.09);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
@@ -143,20 +155,59 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 .fu{animation:fadeUp .5s ease both;}
-.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--b2);background:transparent;transition:background .15s;}
+/* ── PIN SCREEN ──────────────────────────────────── */
+.pin-card{
+  background:var(--pin-card-bg);border:1px solid var(--b2);
+  border-radius:20px;padding:40px 28px 32px;
+  max-width:340px;width:100%;text-align:center;
+  position:relative;overflow:hidden;
+  box-shadow:var(--pin-shadow,none);
+}
+/* Accent stripe at top — color follows theme */
+.pin-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--ac),var(--ac2));
+}
+.pin-title{
+  font-family:var(--font-display);font-size:28px;font-weight:800;
+  color:var(--ac2);margin-bottom:5px;letter-spacing:-.02em;line-height:1.1;
+}
+@media(min-width:480px){.pin-title{font-size:30px;}}
+.pin-sub{
+  font-size:11px;color:var(--m);margin-bottom:28px;
+  font-family:var(--font-body);letter-spacing:.03em;
+}
+.pin-dots-row{display:flex;justify-content:center;gap:12px;margin-bottom:28px;}
+.pin-dot{
+  width:13px;height:13px;border-radius:50%;
+  border:2px solid var(--b2);background:transparent;transition:background .15s;
+}
 .pin-dot.filled{background:var(--ac2);border-color:var(--ac2);}
 .pin-dot.error{background:var(--rd);border-color:var(--rd);}
-.pin-btn{padding:16px;border:1px solid var(--b2);border-radius:12px;background:var(--bg3);color:var(--t);font-family:'Syne',sans-serif;font-size:20px;font-weight:700;cursor:pointer;transition:all .12s;-webkit-tap-highlight-color:transparent;}
-.pin-btn:active{background:var(--ac);border-color:var(--ac);transform:scale(0.93);}
-.pin-clear{font-size:16px;color:var(--m);}
+.pin-keypad{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:9px;max-width:228px;margin:0 auto 12px;
+}
+.pin-btn{
+  padding:15px 10px;border:1px solid var(--b2);
+  border-radius:var(--radius-card,12px);
+  background:var(--bg3);color:var(--t);
+  font-family:var(--font-display);font-size:21px;font-weight:700;
+  cursor:pointer;transition:all .12s;-webkit-tap-highlight-color:transparent;
+}
+@media(min-width:360px){.pin-btn{padding:17px 10px;}}
+.pin-btn:active{background:var(--ac);border-color:var(--ac);color:#fff;transform:scale(0.93);}
+.pin-clear{font-size:17px;color:var(--m);}
 .pin-ok{background:var(--ac);border-color:var(--ac);color:#fff;}
-.pin-ok:active{background:#6d4de8;}
+.pin-ok:active{filter:brightness(0.84);}
+.pin-error{font-size:11px;color:var(--rd);min-height:16px;margin-top:6px;font-family:var(--font-body);}
+.pin-hint{font-size:10px;color:var(--m);margin-top:16px;font-family:var(--font-body);opacity:.7;}
 
 /* NAV */
 nav{position:sticky;top:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(20px);border-bottom:1px solid var(--b);}
 .nav-inner{max-width:1300px;margin:0 auto;padding:0 16px;display:flex;align-items:center;justify-content:space-between;height:52px;gap:8px;}
 @media(min-width:768px){.nav-inner{padding:0 24px;}}
-.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;letter-spacing:.06em;color:var(--ac2);white-space:nowrap;flex-shrink:0;}
+.nav-logo{font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.06em;color:var(--ac2);white-space:nowrap;flex-shrink:0;}
 .nav-logo span{color:var(--m);font-weight:400;}
 
 /* Bottom tab bar for mobile */
@@ -178,7 +229,7 @@ nav{position:sticky;top:0;z-index:100;background:var(--nav-bg);backdrop-filter:b
 @media(min-width:768px){.section{padding:52px 0;}}
 .section-header{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;}
 .snum{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--ac2);background:var(--ac-bg);border:1px solid var(--ac-bd);padding:3px 9px;border-radius:4px;flex-shrink:0;}
-.stitle{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;letter-spacing:-.01em;}
+.stitle{font-family:var(--font-display);font-size:18px;font-weight:700;letter-spacing:-.01em;}
 @media(min-width:768px){.stitle{font-size:21px;}}
 .ssub{font-size:11px;color:var(--m);margin-bottom:18px;}
 
@@ -194,7 +245,7 @@ nav{position:sticky;top:0;z-index:100;background:var(--nav-bg);backdrop-filter:b
 .kpi{background:var(--bg2);border:1px solid var(--b);border-radius:12px;padding:14px;position:relative;overflow:hidden;transition:all .2s;}
 .kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--kc,var(--ac));border-radius:12px 12px 0 0;}
 .kpi-l{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--m);margin-bottom:5px;}
-.kpi-v{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--t);line-height:1;margin-bottom:4px;}
+.kpi-v{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--t);line-height:1;margin-bottom:4px;}
 @media(min-width:768px){.kpi-v{font-size:26px;}}
 .kpi-s{font-size:10px;color:var(--m);}
 .badge{display:inline-block;font-size:10px;font-weight:500;padding:2px 7px;border-radius:20px;margin-top:3px;}
@@ -310,15 +361,15 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
 <div id="lbar"><div id="lfill"></div></div>
 
 <!-- PIN LOCK SCREEN -->
-<div id="pinScreen" style="position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center;">
-  <div style="background:var(--bg2);border:1px solid var(--b2);border-radius:20px;padding:36px 32px;max-width:340px;width:100%;text-align:center;">
-    <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--ac2);margin-bottom:6px">DFG Finance</div>
-    <div style="font-size:11px;color:var(--m);margin-bottom:28px">Ingresa tu PIN para continuar</div>
-    <div id="pinDots" style="display:flex;justify-content:center;gap:12px;margin-bottom:28px">
+<div id="pinScreen" style="position:fixed;inset:0;background:var(--pin-bg);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;">
+  <div class="pin-card fu">
+    <div class="pin-title">DFG Finance</div>
+    <div class="pin-sub">Ingresa tu PIN para continuar</div>
+    <div id="pinDots" class="pin-dots-row">
       <div class="pin-dot"></div><div class="pin-dot"></div>
       <div class="pin-dot"></div><div class="pin-dot"></div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:220px;margin:0 auto 16px">
+    <div class="pin-keypad">
       <button class="pin-btn" onclick="pinPress('1')">1</button>
       <button class="pin-btn" onclick="pinPress('2')">2</button>
       <button class="pin-btn" onclick="pinPress('3')">3</button>
@@ -332,8 +383,8 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
       <button class="pin-btn" onclick="pinPress('0')">0</button>
       <button class="pin-btn pin-ok" onclick="pinSubmit()">✓</button>
     </div>
-    <div id="pinError" style="font-size:11px;color:var(--rd);min-height:16px;margin-top:4px"></div>
-    <div style="font-size:10px;color:var(--m2);margin-top:16px">¿Olvidaste el PIN? Edita el archivo HTML</div>
+    <div id="pinError" class="pin-error"></div>
+    <div class="pin-hint">¿Olvidaste el PIN? Edita el archivo HTML</div>
   </div>
 </div>
 
