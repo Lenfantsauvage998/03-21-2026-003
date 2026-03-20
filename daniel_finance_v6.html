@@ -3342,7 +3342,7 @@ document.getElementById('txDate').value=new Date().toISOString().slice(0,10);
 //  Para cambiar: sha256 de tu nuevo PIN en
 //  https://emn178.github.io/online-tools/sha256.html
 // ══════════════════════════════════════════════════════════
-const PIN_HASH = '2cec8cf0e321c284fa0c2ebef804aac18bf1cbb85546f89e7e3d0b6aa8b9d2cf';
+const PIN_HASH = '4739ee3bd29e4f415da8ba9298a087e0fdc9c61378420ba8fbbab298bd74c4df';
 
 async function sha256(str){
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
