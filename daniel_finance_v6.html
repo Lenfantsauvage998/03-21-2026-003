@@ -391,6 +391,8 @@ tbody tr td{padding:9px 10px;font-size:12px;white-space:nowrap;}
 .fi input,.fi select{width:100%;padding:10px 12px;background:var(--bg3);border:0.5px solid var(--b2);border-radius:10px;color:var(--t);font-family:var(--font-body);font-size:13px;outline:none;transition:border-color .15s;-webkit-appearance:none;}
 .fi input:focus,.fi select:focus{border-color:var(--focus-bd);}
 .amount-inp{font-family:var(--font-display);font-size:24px;font-weight:700;padding:11px 12px 11px 28px;}
+@keyframes voice-pulse{0%,100%{box-shadow:0 0 0 0 rgba(184,155,106,0.5)}50%{box-shadow:0 0 0 8px rgba(184,155,106,0)}}
+#voiceBtn.listening{background:var(--color-primary)!important;border-color:var(--color-primary)!important;animation:voice-pulse 1.2s ease-in-out infinite;}
 .btn-p{width:100%;padding:13px;background:var(--color-primary);border:none;border-radius:10px;color:var(--color-base);font-family:var(--font-body);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent;}
 .btn-p:active{transform:scale(0.98);background:var(--color-primary-hover);}
 .btn-sm{padding:6px 12px;background:var(--bg3);border:0.5px solid var(--b2);border-radius:7px;color:var(--m);font-family:var(--font-body);font-size:11px;cursor:pointer;}
@@ -579,7 +581,19 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
             </div>
           </div>
         </div>
-        <div class="fi"><label>Descripción</label><input id="txDesc" type="text" class="fi" placeholder="ej: Mercado, Uber..."></div>
+        <div class="fi">
+          <label>Descripción</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input id="txDesc" type="text" class="fi" placeholder="ej: Mercado, Uber..." style="flex:1;margin:0">
+            <button id="voiceBtn" onclick="toggleVoice()" title="Usar voz"
+              style="flex-shrink:0;width:40px;height:40px;border-radius:10px;border:1px solid var(--b2);
+                     background:var(--bg3);color:var(--m);cursor:pointer;display:flex;align-items:center;
+                     justify-content:center;font-size:18px;transition:all 0.2s;padding:0">
+              🎤
+            </button>
+          </div>
+          <div id="voiceStatus" style="font-size:10px;color:var(--m);min-height:14px;margin-top:4px;text-align:right"></div>
+        </div>
         <button class="btn-p" onclick="addTx()">Registrar transacción</button>
         <div id="txMsg" style="margin-top:10px;font-size:11px;text-align:center;min-height:16px"></div>
       </div>
@@ -2034,6 +2048,74 @@ function liveAmt(inp){
   const v=parseFloat(inp.value), el=document.getElementById('txFmt');
   el.textContent=!isNaN(v)&&v>0?fmtF(v)+' COP':'';
   el.style.color=txType==='expense'?'var(--rd)':'var(--gr)';
+}
+
+// ── Voice recognition for description field ──────────────────────────────
+let _voiceRec = null;
+let _voiceActive = false;
+
+function toggleVoice(){
+  const btn    = document.getElementById('voiceBtn');
+  const status = document.getElementById('voiceStatus');
+  const input  = document.getElementById('txDesc');
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    status.textContent = 'Tu navegador no soporta reconocimiento de voz';
+    status.style.color = '#e57373';
+    return;
+  }
+
+  // If already listening → stop
+  if (_voiceActive && _voiceRec) {
+    _voiceRec.stop();
+    return;
+  }
+
+  _voiceRec = new SR();
+  _voiceRec.lang = 'es-CO';
+  _voiceRec.continuous = false;
+  _voiceRec.interimResults = true;
+  _voiceRec.maxAlternatives = 1;
+
+  _voiceRec.onstart = () => {
+    _voiceActive = true;
+    btn.classList.add('listening');
+    btn.textContent = '⏹';
+    status.textContent = 'Escuchando...';
+    status.style.color = 'var(--color-primary)';
+  };
+
+  _voiceRec.onresult = (e) => {
+    const transcript = Array.from(e.results)
+      .map(r => r[0].transcript).join('');
+    input.value = transcript;
+    if (e.results[0].isFinal) {
+      status.textContent = '✓ Listo';
+      status.style.color = 'var(--color-primary)';
+    }
+  };
+
+  _voiceRec.onerror = (e) => {
+    const msgs = {
+      'not-allowed': 'Permiso de micrófono denegado',
+      'no-speech':   'No se detectó voz, intenta de nuevo',
+      'network':     'Error de red',
+    };
+    status.textContent = msgs[e.error] || 'Error: ' + e.error;
+    status.style.color = '#e57373';
+  };
+
+  _voiceRec.onend = () => {
+    _voiceActive = false;
+    btn.classList.remove('listening');
+    btn.textContent = '🎤';
+    if (status.textContent === 'Escuchando...') {
+      status.textContent = '';
+    }
+  };
+
+  _voiceRec.start();
 }
 
 async function addTx(){
