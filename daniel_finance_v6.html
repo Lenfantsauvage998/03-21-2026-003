@@ -1138,9 +1138,9 @@ function applyConfig(cfg){
   const pinTitleEl = document.getElementById('pinTitle');
   if(pinTitleEl) pinTitleEl.textContent = initials;
 
-  // Navbar logo: initials bold + '.finance' muted
+  // Navbar logo: Φ symbol + initials from JSON
   const navLogoEl = document.getElementById('navLogo');
-  if(navLogoEl) navLogoEl.innerHTML = initials + '<span>.finance</span>';
+  if(navLogoEl) navLogoEl.innerHTML = '<span style="opacity:0.7;margin-right:2px">Φ</span>' + initials;
 
   // Hero H1 first & last name
   const heroFirstEl = document.getElementById('heroFirstName');
