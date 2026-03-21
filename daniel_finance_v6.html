@@ -2365,6 +2365,14 @@ async function exportStatement(sections = [], sendEmail = false, stmtYM = null) 
   try {
     await _loadPdfLibs();
 
+    // Always re-fetch client.json so name/email/branding changes take effect immediately
+    // without needing a full app reload
+    let liveCFG = CFG;
+    try {
+      const r = await fetch('client.json?_=' + Date.now());
+      if (r.ok) liveCFG = await r.json();
+    } catch(_) { /* fallback to cached CFG */ }
+
     // Month-scoped data slices — if stmtYM provided, limit to that month
     const _all      = stmtYM ? DB.all.filter(t => t.date?.startsWith(stmtYM))      : DB.all;
     const _income   = stmtYM ? DB.income.filter(t => t.date?.startsWith(stmtYM))   : DB.income;
@@ -2422,11 +2430,11 @@ async function exportStatement(sections = [], sendEmail = false, stmtYM = null) 
 
     let pageN = 0; // visible page counter (cover unnumbered)
 
-    // ── Client branding from CFG ──────────────────────────────────────────
-    const clientName     = CFG?.client?.branding?.hero_name || CFG?.client?.name || 'Cliente';
-    const clientInitials = CFG?.client?.branding?.initials  ||
+    // ── Client branding — always from liveCFG (re-fetched above) ─────────
+    const clientName     = liveCFG?.client?.branding?.hero_name || liveCFG?.client?.name || 'Cliente';
+    const clientInitials = liveCFG?.client?.branding?.initials  ||
                            clientName.split(' ').map(p=>p[0]).join('').slice(0,3).toUpperCase();
-    const appTitle       = CFG?.client?.branding?.app_title || 'Finance OS';
+    const appTitle       = liveCFG?.client?.branding?.app_title || 'Finance OS';
 
     // ── Strip emoji / non-Latin chars (jsPDF built-in fonts can't render them) ─
     const cleanTxt = s => (s||'').replace(/[^\u0020-\u007E\u00A0-\u017E]/g,'').replace(/\s+/g,' ').trim();
@@ -2595,7 +2603,7 @@ async function exportStatement(sections = [], sendEmail = false, stmtYM = null) 
 
     // Footer tagline
     doc.setFontSize(7); doc.setTextColor(...AU);
-    doc.text(`Generado el ${genDate}  \xB7  ${appTitle}  \xB7  Datos Supabase PostgreSQL`, W/2, H-15, {align:'center'});
+    doc.text(`Generado el ${genDate}  \xB7  ${cleanTxt(appTitle)}  \xB7  Datos Supabase PostgreSQL`, W/2, H-15, {align:'center'});
     doc.setFontSize(8); doc.setTextColor(40,40,65);
     doc.text('C O N F I D E N C I A L', W/2, H-9, {align:'center'});
 
