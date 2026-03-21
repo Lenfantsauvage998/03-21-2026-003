@@ -1,5 +1,5 @@
 // Bump version whenever static assets change
-const CACHE = 'dfg-v9';
+const CACHE = 'dfg-v10';
 
 // Derive base path from SW location so any GitHub Pages repo name works
 // e.g. /dfg-finance1/sw.js  →  base = /dfg-finance1
