@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cómo instalar tu app Φ Finanzas</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    background: #0f0f0f;
+    color: #333333;
+    min-height: 100vh;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    background: #0f0f0f;
+    text-align: center;
+    padding: 56px 24px 48px;
+  }
+  .hero-icon {
+    width: 88px; height: 88px;
+    background: #f3e8d9;
+    border-radius: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 44px;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 32px rgba(184,155,106,0.25);
+  }
+  .hero h1 {
+    font-size: 26px; font-weight: 700;
+    color: #fff8f1;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+  }
+  .hero p {
+    font-size: 15px; color: #888888;
+    max-width: 360px; margin: 0 auto;
+    line-height: 1.6;
+  }
+  .gold { color: #b89b6a; }
+
+  /* ── Tabs ── */
+  .tabs-wrap {
+    background: #fff8f1;
+    border-radius: 0;
+  }
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid #e5d5c0;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .tab-btn {
+    flex: 1; padding: 18px 12px;
+    background: none; border: none;
+    font-size: 15px; font-weight: 600;
+    color: #888888;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    font-family: inherit;
+    display: flex; align-items: center;
+    justify-content: center; gap: 8px;
+  }
+  .tab-btn.active {
+    color: #1c1c1c;
+    border-bottom-color: #b89b6a;
+  }
+  .tab-icon { font-size: 20px; }
+
+  /* ── Content ── */
+  .content { background: #fff8f1; padding: 0 0 60px; }
+  .panel { display: none; max-width: 640px; margin: 0 auto; padding: 32px 24px; }
+  .panel.active { display: block; }
+
+  /* ── Intro tip ── */
+  .tip-box {
+    background: #f3e8d9;
+    border: 1px solid #e5d5c0;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 32px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .tip-box .tip-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+  .tip-box p { font-size: 13px; color: #555555; line-height: 1.6; }
+  .tip-box strong { color: #1c1c1c; }
+
+  /* ── Steps ── */
+  .step {
+    display: flex; gap: 16px;
+    margin-bottom: 28px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 36px; height: 36px; flex-shrink: 0;
+    background: #1c1c1c;
+    color: #f3e8d9;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700;
+    margin-top: 2px;
+  }
+  .step-body { flex: 1; }
+  .step-body h3 {
+    font-size: 16px; font-weight: 700;
+    color: #1c1c1c; margin-bottom: 6px;
+  }
+  .step-body p {
+    font-size: 13px; color: #555555;
+    line-height: 1.7;
+  }
+  .step-body .hint {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #f3e8d9;
+    border: 1px solid #e5d5c0;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px; color: #1c1c1c;
+    margin-top: 10px;
+    font-weight: 500;
+  }
+
+  /* ── Visual mock ── */
+  .mock-bar {
+    background: #1c1c1c;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .mock-dot { width: 8px; height: 8px; border-radius: 50%; background: #b89b6a; }
+  .mock-url {
+    font-size: 11px; color: #888888;
+    flex: 1; overflow: hidden;
+    white-space: nowrap; text-overflow: ellipsis;
+  }
+  .mock-url span { color: #fff8f1; font-weight: 500; }
+  .mock-menu {
+    background: #1c1c1c;
+    border-radius: 10px;
+    padding: 8px 0;
+    margin-top: 10px;
+  }
+  .mock-menu-item {
+    padding: 10px 16px;
+    font-size: 13px; color: #fff8f1;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid #333333;
+  }
+  .mock-menu-item:last-child { border-bottom: none; }
+  .mock-menu-item.highlight { color: #b89b6a; font-weight: 600; }
+  .mock-menu-icon { font-size: 16px; width: 20px; text-align: center; }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px; background: #e5d5c0;
+    margin: 32px 0;
+  }
+
+  /* ── Success card ── */
+  .success-card {
+    background: #1c1c1c;
+    border-radius: 16px;
+    padding: 28px 24px;
+    text-align: center;
+    margin-top: 36px;
+  }
+  .success-card .s-icon { font-size: 40px; margin-bottom: 12px; }
+  .success-card h3 {
+    font-size: 18px; font-weight: 700;
+    color: #fff8f1; margin-bottom: 8px;
+  }
+  .success-card p {
+    font-size: 13px; color: #888888;
+    line-height: 1.7;
+  }
+
+  /* ── FAQ ── */
+  .faq-section {
+    max-width: 640px; margin: 0 auto;
+    padding: 0 24px 48px;
+    background: #fff8f1;
+  }
+  .faq-title {
+    font-size: 18px; font-weight: 700;
+    color: #1c1c1c; margin-bottom: 20px;
+  }
+  details {
+    border: 1px solid #e5d5c0;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  summary {
+    padding: 16px 18px;
+    font-size: 14px; font-weight: 600;
+    color: #1c1c1c;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    list-style: none;
+    background: #fff8f1;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after {
+    content: '+'; font-size: 20px;
+    color: #b89b6a; font-weight: 300;
+    transition: transform 0.2s;
+  }
+  details[open] summary::after { content: '−'; }
+  details p {
+    padding: 0 18px 16px;
+    font-size: 13px; color: #555555;
+    line-height: 1.7;
+    background: #fff8f1;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    background: #0f0f0f;
+    text-align: center;
+    padding: 32px 24px;
+  }
+  .footer p { font-size: 12px; color: #555555; line-height: 1.8; }
+  .footer .phi { color: #b89b6a; font-size: 18px; }
+
+  @media (max-width: 480px) {
+    .hero h1 { font-size: 22px; }
+    .tab-btn { font-size: 13px; padding: 15px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Hero ── -->
+<div class="hero">
+  <div class="hero-icon">Φ</div>
+  <h1>Instala tu app <span class="gold">Φ Finanzas</span></h1>
+  <p>Sigue estos sencillos pasos y tendrás tu app en la pantalla de inicio de tu celular en menos de 2 minutos.</p>
+</div>
+
+<!-- ── Tabs ── -->
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('android', this)">
+      <span class="tab-icon">🤖</span> Android
+    </button>
+    <button class="tab-btn" onclick="showTab('ios', this)">
+      <span class="tab-icon">🍎</span> iPhone / iPad
+    </button>
+  </div>
+
+  <div class="content">
+
+    <!-- ══════════ ANDROID ══════════ -->
+    <div id="panel-android" class="panel active">
+
+      <div class="tip-box">
+        <div class="tip-icon">💡</div>
+        <p><strong>Importante:</strong> Asegúrate de abrir el link desde <strong>Google Chrome</strong>. Desde otros navegadores puede que no aparezca la opción de instalación.</p>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Abre el link de tu app en Chrome</h3>
+          <p>Tu asesor te habrá enviado un link personalizado. Tócalo para abrirlo, o cópialo y pégalo directamente en Chrome.</p>
+          <div class="mock-bar">
+            <div class="mock-dot"></div>
+            <div class="mock-url">lenfantsauvage998.github.io/<span>tu-app/...</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Toca los tres puntos (⋮) arriba a la derecha</h3>
+          <p>Una vez que la página cargue, toca el ícono de los <strong>tres puntos verticales</strong> que están en la esquina superior derecha de Chrome.</p>
+          <div class="mock-menu">
+            <div class="mock-menu-item"><span class="mock-menu-icon">🔄</span> Actualizar</div>
+            <div class="mock-menu-item highlight"><span class="mock-menu-icon">📲</span> Instalar app</div>
+            <div class="mock-menu-item"><span class="mock-menu-icon">⭐</span> Agregar a favoritos</div>
+            <div class="mock-menu-item"><span class="mock-menu-icon">🖨️</span> Imprimir</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Toca "Instalar app" o "Agregar a pantalla de inicio"</h3>
+          <p>Verás una opción que dice <strong>"Instalar app"</strong> o <strong>"Agregar a pantalla de inicio"</strong>. Tócala.</p>
+          <div class="hint">💬 En algunos celulares el aviso aparece automáticamente en la parte de abajo sin necesidad de tocar los puntos</div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Confirma la instalación</h3>
+          <p>Aparecerá una ventanita de confirmación. Toca <strong>"Instalar"</strong> y listo — el ícono de la app aparecerá en tu pantalla de inicio en segundos.</p>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h3>Ingresa tu PIN y empieza a usar tu app 🎉</h3>
+          <p>Busca el ícono <strong>Φ</strong> en tu pantalla de inicio, tócalo, ingresa el PIN que te compartió tu asesor y ¡ya estás dentro!</p>
+        </div>
+      </div>
+
+      <div class="success-card">
+        <div class="s-icon">🎊</div>
+        <h3>¡Ya tienes tu app instalada!</h3>
+        <p>Se abre como una app nativa, sin barras de navegador, y funciona incluso sin internet una vez instalada.</p>
+      </div>
+    </div>
+
+    <!-- ══════════ iOS ══════════ -->
+    <div id="panel-ios" class="panel">
+
+      <div class="tip-box">
+        <div class="tip-icon">💡</div>
+        <p><strong>Importante:</strong> En iPhone e iPad <strong>solo funciona desde Safari</strong>. Si tienes el link abierto en Chrome u otro navegador, cópialo y pégalo en Safari antes de continuar.</p>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Abre Safari y entra al link de tu app</h3>
+          <p>Busca Safari en tu iPhone/iPad (el ícono de la brújula azul), pega el link que te envió tu asesor en la barra de dirección y presiona ir.</p>
+          <div class="mock-bar">
+            <div class="mock-dot"></div>
+            <div class="mock-url">lenfantsauvage998.github.io/<span>tu-app/...</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Toca el botón de compartir <span style="font-size:18px">⬆️</span></h3>
+          <p>En la barra inferior de Safari verás un ícono de una <strong>cajita con una flecha hacia arriba</strong> (⬆️). Tócalo para abrir el menú de opciones.</p>
+          <div class="hint">📍 Si no ves la barra inferior, desplázate hacia arriba en la página para que aparezca</div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Busca "Agregar a pantalla de inicio"</h3>
+          <p>Desliza hacia abajo dentro del menú que apareció hasta encontrar la opción <strong>"Agregar a pantalla de inicio"</strong> (con un ícono de un cuadrado con un +). Tócala.</p>
+          <div class="mock-menu">
+            <div class="mock-menu-item"><span class="mock-menu-icon">📋</span> Copiar</div>
+            <div class="mock-menu-item"><span class="mock-menu-icon">📨</span> Mensaje</div>
+            <div class="mock-menu-item highlight"><span class="mock-menu-icon">📱</span> Agregar a pantalla de inicio</div>
+            <div class="mock-menu-item"><span class="mock-menu-icon">🔖</span> Agregar a favoritos</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>Confirma el nombre y toca "Agregar"</h3>
+          <p>Verás una pantalla con el nombre de la app. Puedes dejarlo como está o cambiarlo. Luego toca <strong>"Agregar"</strong> en la esquina superior derecha.</p>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h3>Ingresa tu PIN y empieza a usar tu app 🎉</h3>
+          <p>El ícono <strong>Φ</strong> aparecerá en tu pantalla de inicio. Tócalo, ingresa el PIN que te compartió tu asesor y ¡listo, ya eres parte!</p>
+        </div>
+      </div>
+
+      <div class="success-card">
+        <div class="s-icon">🎊</div>
+        <h3>¡Ya tienes tu app instalada!</h3>
+        <p>Se abre como una app nativa, sin barras de navegador, y funciona incluso sin internet una vez instalada.</p>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /tabs-wrap -->
+
+<!-- ── FAQ ── -->
+<div class="faq-section">
+  <div class="divider"></div>
+  <p class="faq-title">❓ Preguntas frecuentes</p>
+
+  <details>
+    <summary>No me aparece la opción de instalar, ¿qué hago?</summary>
+    <p>Asegúrate de estar usando <strong>Chrome en Android</strong> o <strong>Safari en iPhone/iPad</strong>. Si usas otro navegador, la opción no aparecerá. Copia el link y ábrelo en el navegador correcto.</p>
+  </details>
+
+  <details>
+    <summary>¿La app necesita internet para funcionar?</summary>
+    <p>Una vez instalada, la app puede funcionar en modo offline para ver tu información. Sin embargo, para registrar o sincronizar nuevas transacciones necesitas conexión a internet.</p>
+  </details>
+
+  <details>
+    <summary>¿Mis datos están seguros?</summary>
+    <p>Sí. Tu información está almacenada en una base de datos privada y segura. Además, la app está protegida por un PIN personal que solo tú conoces.</p>
+  </details>
+
+  <details>
+    <summary>¿Olvidé mi PIN, qué hago?</summary>
+    <p>Comunícate con tu asesor para que te asigne un nuevo PIN. Él podrá restablecerlo de forma rápida.</p>
+  </details>
+
+  <details>
+    <summary>¿Puedo instalarla en más de un dispositivo?</summary>
+    <p>¡Claro! Puedes instalar tu app en tantos dispositivos como quieras usando el mismo link. Tu información se sincroniza automáticamente en todos ellos.</p>
+  </details>
+
+  <details>
+    <summary>¿La app me consume espacio en el celular?</summary>
+    <p>Muy poco. Al ser una Progressive Web App (PWA) ocupa mucho menos espacio que una app tradicional descargada desde la tienda — generalmente menos de 5 MB.</p>
+  </details>
+
+  <details>
+    <summary>¿Puedo eliminar la app si no la quiero?</summary>
+    <p>Sí, igual que cualquier app. Mantén presionado el ícono en tu pantalla de inicio y elige "Eliminar" o "Desinstalar". Tus datos no se borran, solo la app del dispositivo.</p>
+  </details>
+</div>
+
+<!-- ── Footer ── -->
+<div class="footer">
+  <p class="phi">Φ</p>
+  <p>¿Necesitas ayuda? Escríbele a tu asesor.<br>
+  Estamos aquí para que tu experiencia sea perfecta.</p>
+</div>
+
+<script>
+  function showTab(id, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-' + id).classList.add('active');
+    btn.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
