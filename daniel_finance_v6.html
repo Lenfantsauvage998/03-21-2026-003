@@ -3648,10 +3648,8 @@ Chart.defaults.font.size=10;
 document.getElementById('txDate').value=new Date().toISOString().slice(0,10);
 
 // ══════════════════════════════════════════════════════════
-//  PIN LOCK — cambia PIN_HASH para establecer tu contraseña
-//  PIN por defecto: 2612
-//  Para cambiar: sha256 de tu nuevo PIN en
-//  https://emn178.github.io/online-tools/sha256.html
+//  PIN LOCK — SHA-256 hash of access PIN
+//  To change: hash your new PIN at emn178.github.io/online-tools/sha256.html
 // ══════════════════════════════════════════════════════════
 const PIN_HASH = '4739ee3bd29e4f415da8ba9298a087e0fdc9c61378420ba8fbbab298bd74c4df';
 

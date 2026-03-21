@@ -47,9 +47,9 @@ Helper functions `sbPost`, `sbDelete`, `sbGet` wrap Supabase API calls. No SDK i
 
 ### Authentication
 
-PIN-based auth using SHA-256. The PIN hash is stored in the `PIN_HASH` constant. Authentication flag stored in `sessionStorage.dfg_auth`. Default PIN: `2612`.
+PIN-based auth using SHA-256. The PIN hash is stored in the `PIN_HASH` constant. Authentication flag stored in `sessionStorage.dfg_auth`.
 
-To change PIN: hash the new 4-digit PIN with SHA-256 and replace `PIN_HASH` in the file.
+To change PIN: hash the new PIN with SHA-256 at emn178.github.io/online-tools/sha256.html and replace `PIN_HASH` in the file.
 
 ### App Sections
 
