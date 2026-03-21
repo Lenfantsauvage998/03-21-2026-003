@@ -1,7 +1,7 @@
 {
-  "name": "DFG Finance OS",
-  "short_name": "DFG Finance",
-  "description": "Dashboard financiero personal Daniel Figueredo",
+  "name": "Φ Finances",
+  "short_name": "Φ Finances",
+  "description": "Dashboard financiero personal",
   "start_url": "/03-19-2026-001/daniel_finance_v6.html",
   "scope": "/03-19-2026-001/",
   "display": "standalone",
