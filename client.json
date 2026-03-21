@@ -82,7 +82,7 @@
       "label": "Diario",
       "features": {
         "transaction_form": true,
-        "transaction_types": "both",
+        "transaction_types": "expense",
         "month_summary": false,
         "history": false,
         "csv_export": false
