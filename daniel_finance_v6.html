@@ -1149,9 +1149,24 @@ function applyConfig(cfg){
   const lastName  = nameParts.slice(1).join(' ') || '';
   const initials  = b.initials || nameParts.map(p=>p[0]).join('').toUpperCase().slice(0,3);
 
-  // PIN screen title — matches navbar: Φ Finanzas DG
+  // PIN screen title — matches navbar: Φ DG
   const pinTitleEl = document.getElementById('pinTitle');
-  if(pinTitleEl) pinTitleEl.innerHTML = '<span style="font-weight:400;margin-right:6px">Φ</span>' + initials;
+  if(pinTitleEl) {
+    pinTitleEl.innerHTML = '<span style="font-weight:400;margin-right:6px">Φ</span>' + initials;
+    // Triple-tap the title → force SW cache clear + reload (useful after publishing config changes)
+    let _tapCount = 0, _tapTimer;
+    pinTitleEl.addEventListener('click', () => {
+      _tapCount++;
+      clearTimeout(_tapTimer);
+      _tapTimer = setTimeout(() => {
+        if (_tapCount >= 3) {
+          caches.keys().then(ks => Promise.all(ks.map(k => caches.delete(k))))
+            .then(() => location.reload(true));
+        }
+        _tapCount = 0;
+      }, 500);
+    });
+  }
 
   // Navbar logo: Φ symbol + initials from JSON
   const navLogoEl = document.getElementById('navLogo');
