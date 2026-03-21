@@ -13,7 +13,7 @@
       "storage_bucket": "statements"
     },
     "branding": {
-      "app_title": "DG Finance OS",
+      "app_title": "Φ Finances ",
       "initials": "DG",
       "hero_name": "Diana Gutierrez",
       "goal_amount": 50000000,
@@ -82,6 +82,7 @@
       "label": "Diario",
       "features": {
         "transaction_form": true,
+        "transaction_types": "both",
         "month_summary": false,
         "history": false,
         "csv_export": false

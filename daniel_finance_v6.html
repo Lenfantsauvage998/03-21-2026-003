@@ -512,7 +512,7 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
     <div class="nav-links">
       <button class="nl active" data-nav-module="home" onclick="goTo('home')">Inicio</button>
       <button class="nl" data-nav-module="diario" onclick="goTo('diario')">Diario <span class="nb">VIVO</span></button>
-      <button class="nl" data-nav-module="historial" onclick="goTo('historial')">History</button>
+      <button class="nl" data-nav-module="historial" onclick="goTo('historial')">Historial</button>
       <button class="nl" data-nav-module="overview" onclick="goTo('overview')">Resumen</button>
       <button class="nl" data-nav-module="flujo" onclick="goTo('flujo')">Flujo</button>
       <button class="nl" data-nav-module="gastos" onclick="goTo('gastos')">Gastos</button>
@@ -565,7 +565,7 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
     <div class="g2" id="diarioGrid">
       <div class="card" style="border-color:var(--ac-bd)" data-module="diario" data-feature="transaction_form">
         <div class="ct">Nueva transacción</div>
-        <div style="display:flex;gap:0;margin-bottom:14px;background:var(--bg3);border-radius:10px;padding:3px">
+        <div id="txTypeToggle" style="display:flex;gap:0;margin-bottom:14px;background:var(--bg3);border-radius:10px;padding:3px">
           <button id="btnExp" class="type-btn" onclick="setType('expense')" style="background:var(--rd);color:#fff">− Gasto</button>
           <button id="btnInc" class="type-btn" onclick="setType('income')"  style="background:transparent;color:var(--m)">+ Ingreso</button>
         </div>
@@ -686,7 +686,7 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
 <!-- HISTORIAL -->
 <div class="section" id="historial">
   <div class="wrap">
-    <div class="section-header"><span class="snum">H</span><h2 class="stitle">History</h2></div>
+    <div class="section-header"><span class="snum">H</span><h2 class="stitle">Historial</h2></div>
     <p class="ssub">Todas tus transacciones · Supabase</p>
     <div class="card" data-module="historial" data-feature="history">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
@@ -1200,6 +1200,18 @@ function applyConfig(cfg){
     const gr = document.getElementById('diarioGrid');
     if(rc) rc.style.display = hasDR ? '' : 'none';
     if(gr) gr.style.gridTemplateColumns = hasDR ? '' : '1fr';
+  }
+  // Diario: transaction_types — "both" | "expense" | "income"
+  {
+    const tt = cfg.modules?.diario?.features?.transaction_types || 'both';
+    const toggle = document.getElementById('txTypeToggle');
+    const btnExp = document.getElementById('btnExp');
+    const btnInc = document.getElementById('btnInc');
+    if(toggle){
+      if(tt === 'expense'){ btnInc.style.display='none'; txType='expense'; setType('expense'); }
+      else if(tt === 'income'){ btnExp.style.display='none'; txType='income'; setType('income'); }
+      toggle.style.display = tt === 'both' ? '' : 'none';
+    }
   }
   // Gastos: if all right-panel features are disabled, hide right col + go full-width
   {
@@ -1908,11 +1920,13 @@ function renderPerfecto() {
 // ══════════════════════════════════════════════════════════
 let txType='expense', selCat='food';
 const CATS_EXP=[
-  {id:'food',col:'#22d47a',lbl:'🛒 Comida'},{id:'transport',col:'#f5a623',lbl:'🚌 Transporte'},
-  {id:'personal',col:'#a78bfa',lbl:'👥 Personal'},{id:'social',col:'#4d9fff',lbl:'☕ Social'},
-  {id:'shopping',col:'#f05353',lbl:'🛍 Compras'},{id:'bills',col:'#2dd4bf',lbl:'📱 Facturas'},
-  {id:'health',col:'#f472b6',lbl:'💊 Salud'},{id:'edu',col:'#34d399',lbl:'📚 Educación'},
-  {id:'other',col:'#888',lbl:'⚙ Otro'},
+  {id:'housing',   col:'#b89b6a', lbl:'🏠 Vivienda y servicios'},
+  {id:'market',    col:'#6dbf8a', lbl:'🛒 Mercado / aseo Casa'},
+  {id:'food',      col:'#f5a623', lbl:'🍽 Comida'},
+  {id:'transport', col:'#4d9fff', lbl:'🚌 Transporte'},
+  {id:'health',    col:'#f472b6', lbl:'💊 Salud y Bienestar'},
+  {id:'kids',      col:'#a78bfa', lbl:'👶 Gasto Hijos'},
+  {id:'other',     col:'#888',    lbl:'⚙ Otros'},
 ];
 const CATS_INC=[
   {id:'salary',col:'#22d47a',lbl:'💼 Salario'},{id:'freelance',col:'#4d9fff',lbl:'💻 Freelance'},
