@@ -1902,7 +1902,7 @@ function renderPerfecto() {
 // ══════════════════════════════════════════════════════════
 //  DIARIO
 // ══════════════════════════════════════════════════════════
-let txType='expense', selCat='food';
+let txType='expense', selCat='';
 const CATS_EXP=[
   {id:'housing',   col:'#b89b6a', lbl:'🏠 Vivienda y servicios'},
   {id:'market',    col:'#6dbf8a', lbl:'🛒 Mercado / aseo Casa'},
@@ -1975,8 +1975,8 @@ function setType(t){
 
 function buildCatGrid(){
   const allCats = getActiveCats();
-  // Mantener selCat válido al cambiar de tipo
-  if(!allCats.find(c=>c.id===selCat)) selCat = allCats[0]?.id || '';
+  // Only reset selCat if it was a valid selection that no longer exists in this type
+  if(selCat && !allCats.find(c=>c.id===selCat)) selCat = '';
   const el = document.getElementById('catGrid');
   el.innerHTML = '';
 
@@ -2042,6 +2042,7 @@ async function addTx(){
   const date=document.getElementById('txDate').value||new Date().toISOString().slice(0,10);
   const msgEl=document.getElementById('txMsg');
   if(!amount||amount<=0){msgEl.textContent='Ingresa un monto';msgEl.style.color='var(--rd)';return;}
+  if(!selCat){msgEl.textContent='Selecciona una categoría';msgEl.style.color='var(--rd)';return;}
   msgEl.textContent='Guardando...';msgEl.style.color='var(--m)';
   try {
     const d=new Date(date+'T12:00:00');
