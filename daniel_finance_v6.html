@@ -10,34 +10,14 @@
 <meta name="apple-mobile-web-app-title" content="Φ Finances">
 <link rel="manifest" href="manifest.json">
 <script>
-  // Dynamically update manifest from client.json so repo/name changes propagate automatically
+  // Update <title> and Apple meta from client.json branding.app_title
   fetch('client.json').then(r => r.json()).then(cfg => {
-    const repo = cfg?.client?.repo || 'dfg-finance1';
-    const appTitle = cfg?.client?.branding?.app_title || 'DFG Finance OS';
-    const manifest = {
-      name: appTitle,
-      short_name: appTitle,
-      description: appTitle + (cfg?.client?.branding?.hero_name ? ' · ' + cfg.client.branding.hero_name : ''),
-      start_url: '/' + repo + '/daniel_finance_v6.html',
-      scope: '/' + repo + '/',
-      display: 'standalone',
-      background_color: '#080910',
-      theme_color: '#080910',
-      orientation: 'portrait-primary',
-      icons: [
-        { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-        { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
-      ],
-      categories: ['finance', 'productivity'],
-      lang: 'es'
-    };
-    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-    document.querySelector('link[rel="manifest"]').href = URL.createObjectURL(blob);
-    // Also update <title> and Apple meta tag
+    const appTitle = cfg?.client?.branding?.app_title;
+    if(!appTitle) return;
     document.title = appTitle;
     const appleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]');
     if(appleMeta) appleMeta.content = appTitle;
-  }).catch(() => {}); // fallback: static manifest.json stays if fetch fails
+  }).catch(() => {});
 </script>
 <title>Φ Finances</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;500&family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
