@@ -679,8 +679,8 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
           <select id="histFilterMod" onchange="renderHistorial()"
             style="padding:5px 9px;background:var(--bg3);border:1px solid var(--b2);border-radius:7px;color:var(--t);font-family:var(--font-body);font-size:10px;outline:none;cursor:pointer;-webkit-appearance:none">
           </select>
-          <button class="btn-sm" data-module="historial" data-feature="csv_export" onclick="exportStatement([], true)" title="Enviar estado completo por email">✉ Estado completo</button>
-          <button class="btn-sm" data-module="historial" data-feature="csv_export" onclick="exportStatement(['diario'], true)" title="Enviar diario por email" style="margin-left:4px">✉ Mi Diario</button>
+          <button id="btnStmtFull" class="btn-sm" data-module="historial" data-feature="csv_export" onclick="exportStatement([], true, document.getElementById('histFilterMod').value)" title="Selecciona un mes primero" disabled style="opacity:0.4;cursor:not-allowed">✉ Estado completo</button>
+          <button id="btnStmtDiario" class="btn-sm" data-module="historial" data-feature="csv_export" onclick="exportStatement(['diario'], true, document.getElementById('histFilterMod').value)" title="Selecciona un mes primero" disabled style="opacity:0.4;cursor:not-allowed;margin-left:4px">✉ Mi Diario</button>
         </div>
       </div>
       <div id="txHistoryMod" style="max-height:620px;overflow-y:auto;-webkit-overflow-scrolling:touch"></div>
@@ -2269,6 +2269,21 @@ function renderHistorial(){
     return t.date&&t.date.startsWith(filterYM);
   });
 
+  // Enable email buttons only when a specific month is selected AND has transactions
+  const canSend = filterYM !== 'all' && filtered.length > 0;
+  ['btnStmtFull','btnStmtDiario'].forEach(id => {
+    const btn = document.getElementById(id);
+    if(!btn) return;
+    btn.disabled = !canSend;
+    btn.style.opacity = canSend ? '' : '0.4';
+    btn.style.cursor  = canSend ? '' : 'not-allowed';
+    btn.title = canSend
+      ? '✉ Enviar estado por email'
+      : filterYM === 'all'
+        ? 'Selecciona un mes específico para enviar'
+        : 'Sin transacciones en este mes';
+  });
+
   if(!filtered.length){
     histEl.innerHTML='<div style="text-align:center;padding:24px;color:var(--m);font-size:12px">Sin transacciones.</div>';
     return;
@@ -2337,7 +2352,9 @@ function _pf(v) { // format number → $1.2M / $450K / $12K
   return sg + '$' + Math.round(a);
 }
 
-async function exportStatement(sections = [], sendEmail = false) {
+async function exportStatement(sections = [], sendEmail = false, stmtYM = null) {
+  if (stmtYM === 'all' || !stmtYM) stmtYM = null;
+
   // Show cursor feedback
   document.body.style.cursor = 'wait';
   // Update all matching buttons
@@ -2347,6 +2364,16 @@ async function exportStatement(sections = [], sendEmail = false) {
 
   try {
     await _loadPdfLibs();
+
+    // Month-scoped data slices — if stmtYM provided, limit to that month
+    const _all      = stmtYM ? DB.all.filter(t => t.date?.startsWith(stmtYM))      : DB.all;
+    const _income   = stmtYM ? DB.income.filter(t => t.date?.startsWith(stmtYM))   : DB.income;
+    const _expenses = stmtYM ? DB.expenses.filter(t => t.date?.startsWith(stmtYM)) : DB.expenses;
+    const _realExp  = stmtYM ? DB.real_exp.filter(t => t.date?.startsWith(stmtYM)) : DB.real_exp;
+    const _monthly  = stmtYM ? DB.monthly.filter(m => {
+      const mn = MONTH_NUM[m.month] || 0;
+      return `${m.year}-${String(mn).padStart(2,'0')}` === stmtYM;
+    }) : DB.monthly;
 
     // ── Resolve allowed sections ──────────────────────────────────────────
     const M = CFG?.modules || {};
@@ -2386,10 +2413,12 @@ async function exportStatement(sections = [], sendEmail = false) {
 
     // Date helpers
     const genDate = new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'});
-    const allDates = DB.all.map(t=>t.date).filter(Boolean).sort();
+    const allDates = _all.map(t=>t.date).filter(Boolean).sort();
     const d0 = allDates[0]  ? new Date(allDates[0]).toLocaleDateString('es',{month:'short',year:'numeric'}) : '';
     const d1 = allDates[allDates.length-1] ? new Date(allDates[allDates.length-1]).toLocaleDateString('es',{month:'short',year:'numeric'}) : '';
-    const period = d0 && d1 ? `${d0} – ${d1}` : genDate;
+    const period = stmtYM
+      ? new Date(stmtYM + '-02').toLocaleDateString('es',{month:'long',year:'numeric'})
+      : (d0 && d1 ? `${d0} – ${d1}` : genDate);
 
     let pageN = 0; // visible page counter (cover unnumbered)
 
@@ -2728,13 +2757,13 @@ async function exportStatement(sections = [], sendEmail = false) {
     // ════════════════════════════════════════════════════════════════════
     if (inc.includes('diario')) {
       let y = newSection('diario');
-      const ledger = [...DB.all]
+      const ledger = [..._all]
         .filter(t => t.type !== 'transfer')
         .sort((a,b) => (b.date||'').localeCompare(a.date||''));
       y = addKpiRow(y, [
         { label:'Total transacciones', val:String(ledger.length) },
-        { label:'Total ingresos',       val:_pf(DB.income.reduce((s,t)=>s+t.amount,0)),   pos:true },
-        { label:'Total gastos',         val:_pf(DB.expenses.reduce((s,t)=>s+t.amount,0)), neg:true },
+        { label:'Total ingresos',       val:_pf(_income.reduce((s,t)=>s+t.amount,0)),   pos:true },
+        { label:'Total gastos',         val:_pf(_expenses.reduce((s,t)=>s+t.amount,0)), neg:true },
       ]);
       addTable(y,
         [['Fecha','Descripcion','Categoria','Tipo','Monto']],
