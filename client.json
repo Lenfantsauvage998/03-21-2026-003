@@ -2,6 +2,16 @@
   "client": {
     "id": "dfg-diana",
     "name": "Diana Gutierrez",
+    "repo": "03-19-2026-001",
+    "email": "lefantsauvage998@gmail.com",
+    "emailjs": {
+      "service_id": "service_s60d3lv",
+      "template_id": "template_45jqud9",
+      "public_key": "7Ve_lz9mVC-l7gxqx"
+    },
+    "supabase": {
+      "storage_bucket": "statements"
+    },
     "branding": {
       "app_title": "DG Finance OS",
       "initials": "DG",
@@ -11,7 +21,7 @@
       "budget_limit": 400000,
       "optimal_budget": 1000000,
       "currency": "COP",
-      "theme": "phantom",
+      "theme": "arctic",
       "_theme_options": ["phantom","carbon","forest","solar","arctic"]
     }
   },
@@ -21,11 +31,11 @@
       "enabled": true,
       "label": "Home",
       "features": {
-        "kpi_networth": true,
-        "kpi_salary": true,
-        "kpi_interests": true,
-        "kpi_shopping": true,
-        "goal_progress_bar": true
+        "kpi_networth": false,
+        "kpi_salary": false,
+        "kpi_interests": false,
+        "kpi_shopping": false,
+        "goal_progress_bar": false
       }
     },
     "overview": {
@@ -53,8 +63,8 @@
         "category_bars": true,
         "category_donut": true,
         "monthly_limit_chart": false,
-        "day_of_week_grid": true,
-        "top10_table": true
+        "day_of_week_grid": false,
+        "top10_table": false
       }
     },
     "proyeccion": {
@@ -72,7 +82,15 @@
       "label": "Diario",
       "features": {
         "transaction_form": true,
-        "month_summary": true,
+        "month_summary": false,
+        "history": false,
+        "csv_export": false
+      }
+    },
+    "historial": {
+      "enabled": true,
+      "label": "History",
+      "features": {
         "history": true,
         "csv_export": true
       }
@@ -141,6 +159,6 @@
   },
 
   "nav": {
-    "mobile_tabs": ["home", "flujo", "diario", "mes_perfecto", "montecarlo", "predictor"]
+    "mobile_tabs": ["home", "flujo", "diario", "historial", "mes_perfecto", "montecarlo", "predictor"]
   }
 }
