@@ -1,5 +1,5 @@
 // Bump version whenever static assets change
-const CACHE = 'dfg-v12';
+const CACHE = 'dfg-v13';
 
 // Derive base path from SW location so any GitHub Pages repo name works
 // e.g. /dfg-finance1/sw.js  →  base = /dfg-finance1
@@ -80,6 +80,22 @@ self.addEventListener('fetch', e => {
       fetch(e.request)
         .then(r => {
           if (r.ok) { const cl = r.clone(); caches.open(CACHE).then(c => c.put(e.request, cl)); }
+          return r;
+        })
+        .catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // HTML files: network-first with cache: 'no-store' to bypass browser HTTP cache
+  if (e.request.url.endsWith('.html') || e.request.url.includes('.html?')) {
+    e.respondWith(
+      fetch(e.request, { cache: 'no-store' })
+        .then(r => {
+          if (r.ok) {
+            const cl = r.clone();
+            caches.open(CACHE).then(c => c.put(e.request, cl));
+          }
           return r;
         })
         .catch(() => caches.match(e.request))
