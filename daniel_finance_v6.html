@@ -3882,18 +3882,40 @@ if('serviceWorker' in navigator){
 
 <script>
 (function(){
-  const CURRENT_V = '20260322-021';
+  const CURRENT_V = '20260322-022';
   const BANNER_ID = 'updateBanner';
 
   async function doUpdate(){
-    // Borrar cachés y recargar — el SW ya usa no-store para HTML
+    const btn = document.getElementById('updateBtn');
+    if(btn){ btn.textContent = '⏳'; btn.disabled = true; }
+
+    // Step 1: activate waiting SW if there is one
+    try {
+      if('serviceWorker' in navigator){
+        const reg = await navigator.serviceWorker.getRegistration();
+        if(reg?.waiting){
+          reg.waiting.postMessage({ type:'SKIP_WAITING' });
+          // Give the SW ~500ms to activate before we continue
+          await new Promise(res => setTimeout(res, 500));
+        }
+        // Force SW to re-check for its own update
+        try { await reg?.update(); } catch(_){}
+      }
+    } catch(_){}
+
+    // Step 2: wipe every cache entry
     try {
       if('caches' in window){
         const keys = await caches.keys();
         await Promise.all(keys.map(k => caches.delete(k)));
       }
     } catch(_){}
-    window.location.reload();
+
+    // Step 3: hard-navigate with a cache-busting param.
+    // location.replace() + query param bypasses BFCache on iOS Safari and
+    // forces the browser (and SW) to fetch a completely fresh response.
+    const clean = location.href.replace(/[?#].*/, '');
+    location.replace(clean + '?r=' + Date.now());
   }
 
   function showUpdateBanner(){
@@ -3908,19 +3930,24 @@ if('serviceWorker' in navigator){
 
   async function checkVersion(){
     try{
-      const r = await fetch('version.json?_=' + Date.now());
+      const r = await fetch('version.json?_=' + Date.now(), { cache:'no-store' });
       if(!r.ok) return;
       const {v} = await r.json();
       if(v && v !== CURRENT_V) showUpdateBanner();
     }catch(_){}
   }
 
-  setTimeout(checkVersion,  3_000);   // 3s  — on open
-  setTimeout(checkVersion, 30_000);   // 30s — after settling
-  setTimeout(checkVersion, 90_000);   // 90s — safety net
-  setInterval(checkVersion, 60_000);  // every 60s — ongoing
+  setTimeout(checkVersion,  3_000);
+  setTimeout(checkVersion, 30_000);
+  setTimeout(checkVersion, 90_000);
+  setInterval(checkVersion, 60_000);
 
   if('serviceWorker' in navigator){
+    // When the SW changes controller (new SW took over) → reload immediately
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      const clean = location.href.replace(/[?#].*/, '');
+      location.replace(clean + '?r=' + Date.now());
+    });
     navigator.serviceWorker.addEventListener('message', e => {
       if(e.data?.type === 'NEW_VERSION') showUpdateBanner();
     });

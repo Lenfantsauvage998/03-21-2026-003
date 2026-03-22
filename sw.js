@@ -87,18 +87,21 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // HTML files: network-first with cache: 'no-store' to bypass browser HTTP cache
-  if (e.request.url.endsWith('.html') || e.request.url.includes('.html?')) {
+  // HTML files: always network-first, no-store to bypass every HTTP cache layer.
+  // Strip query params before caching so ?r=timestamp variants don't fragment the cache.
+  if (e.request.url.includes('.html')) {
+    const cleanUrl = e.request.url.replace(/\?.*$/, '');
+    const cleanReq = new Request(cleanUrl, { cache: 'no-store' });
     e.respondWith(
-      fetch(e.request, { cache: 'no-store' })
+      fetch(cleanReq)
         .then(r => {
           if (r.ok) {
             const cl = r.clone();
-            caches.open(CACHE).then(c => c.put(e.request, cl));
+            caches.open(CACHE).then(c => c.put(cleanReq, cl));
           }
           return r;
         })
-        .catch(() => caches.match(e.request))
+        .catch(() => caches.match(cleanReq))
     );
     return;
   }
