@@ -51,7 +51,7 @@
       "label": "Flujo",
       "features": {
         "cashflow_chart": true,
-        "income_sources_chart": true,
+        "income_sources_chart": false,
         "interest_yield_grid": false
       }
     },
@@ -109,7 +109,7 @@
       }
     },
     "montecarlo": {
-      "enabled": true,
+      "enabled": false,
       "label": "Portafolios",
       "features": {
         "portfolio_selector": true,
