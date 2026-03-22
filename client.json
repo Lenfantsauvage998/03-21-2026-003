@@ -39,7 +39,7 @@
       }
     },
     "overview": {
-      "enabled": true,
+      "enabled": false,
       "label": "Overview",
       "features": {
         "networth_chart": true,
@@ -47,7 +47,7 @@
       }
     },
     "flujo": {
-      "enabled": true,
+      "enabled": false,
       "label": "Flujo",
       "features": {
         "cashflow_chart": true,
