@@ -2151,9 +2151,6 @@ async function addTx(){
       category:txType==='expense'? catLabel :'Income',
       subcategory:selCat,
       description:desc,
-      account:'Rappi',
-      month:d.toLocaleString('en',{month:'long'}),
-      year:d.getFullYear(),
     });
     DB.all.unshift(res);
     if(txType==='income') DB.income.unshift(res);
