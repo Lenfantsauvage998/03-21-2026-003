@@ -3882,24 +3882,24 @@ if('serviceWorker' in navigator){
 
 <script>
 (function(){
-  const CURRENT_V = '20260322-024';
+  const CURRENT_V = '20260322-025';
   const BANNER_ID = 'updateBanner';
+
+  // Clean up ?r= cache-bust param from URL after successful update
+  if(location.search.includes('r=')) history.replaceState(null, '', location.pathname);
 
   async function doUpdate(){
     const btn = document.getElementById('updateBtn');
     if(btn){ btn.textContent = '⏳'; btn.disabled = true; }
 
-    // Step 1: activate waiting SW if there is one
+    // Step 1: UNREGISTER all service workers.
+    // The OLD SW is the one intercepting requests — it doesn't have the
+    // CDN cache-busting fix. By removing it, the browser goes straight
+    // to the network on reload. The new page will re-register the new SW.
     try {
       if('serviceWorker' in navigator){
-        const reg = await navigator.serviceWorker.getRegistration();
-        if(reg?.waiting){
-          reg.waiting.postMessage({ type:'SKIP_WAITING' });
-          // Give the SW ~500ms to activate before we continue
-          await new Promise(res => setTimeout(res, 500));
-        }
-        // Force SW to re-check for its own update
-        try { await reg?.update(); } catch(_){}
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r => r.unregister()));
       }
     } catch(_){}
 
@@ -3911,9 +3911,9 @@ if('serviceWorker' in navigator){
       }
     } catch(_){}
 
-    // Step 3: hard-navigate with a cache-busting param.
-    // location.replace() + query param bypasses BFCache on iOS Safari and
-    // forces the browser (and SW) to fetch a completely fresh response.
+    // Step 3: hard-navigate with cache-busting param.
+    // No SW to intercept → browser goes directly to network.
+    // ?r=timestamp busts GitHub Pages CDN (Fastly max-age=600).
     const clean = location.href.replace(/[?#].*/, '');
     location.replace(clean + '?r=' + Date.now());
   }
