@@ -97,7 +97,7 @@
       }
     },
     "mes_perfecto": {
-      "enabled": false,
+      "enabled": true,
       "label": "Mes Perfecto",
       "features": {
         "kpi_cards": true,
