@@ -437,6 +437,23 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
    doesn't strip the display:grid that was on the inline style */
 .cap-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;}
 
+/* CONFIRM MODAL */
+.cfm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:9999;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s ease;padding:20px;}
+.cfm-overlay.show{opacity:1;}
+.cfm-box{background:var(--bg2);border:1px solid var(--b);border-radius:16px;padding:28px 24px 20px;max-width:340px;width:100%;text-align:center;transform:scale(0.92);transition:transform .2s ease;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+.cfm-overlay.show .cfm-box{transform:scale(1);}
+.cfm-icon{font-size:32px;margin-bottom:12px;}
+.cfm-title{font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--t);margin-bottom:6px;}
+.cfm-msg{font-family:var(--font-body);font-size:12px;color:var(--m);line-height:1.5;margin-bottom:20px;}
+.cfm-btns{display:flex;gap:10px;}
+.cfm-btn{flex:1;padding:11px 0;border-radius:10px;border:none;font-family:var(--font-body);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s ease;}
+.cfm-btn-cancel{background:var(--bg3);color:var(--m);border:1px solid var(--b);}
+.cfm-btn-cancel:hover{background:var(--b);color:var(--t);}
+.cfm-btn-confirm{background:var(--ac);color:var(--bg);}
+.cfm-btn-confirm:hover{opacity:0.85;}
+.cfm-btn-danger{background:rgba(240,83,83,0.15);color:#f05353;border:1px solid rgba(240,83,83,0.3);}
+.cfm-btn-danger:hover{background:rgba(240,83,83,0.25);}
+
 /* GASTOS FILTER */
 #gastosMonthFilter{width:100%;padding:10px 12px;background:var(--bg3);border:0.5px solid var(--b2);border-radius:8px;color:var(--t);font-family:var(--font-body);font-size:12px;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;}
 @media(min-width:600px){#gastosMonthFilter{width:auto;font-size:11px;padding:6px 10px;}}
@@ -1031,6 +1048,33 @@ async function sbDelete(table, id) {
   return r.ok;
 }
 
+// ── Custom confirm modal ──
+function phiNotify({icon='',title='',msg='',btnText='Cerrar',danger=false}={}){
+  return phiConfirm({icon,title,msg,confirmText:btnText,cancelText:'',danger});
+}
+
+function phiConfirm({icon='',title='',msg='',confirmText='Confirmar',cancelText='Cancelar',danger=false}={}){
+  return new Promise(resolve=>{
+    const ov=document.createElement('div');
+    ov.className='cfm-overlay';
+    ov.innerHTML=`<div class="cfm-box">
+      <div class="cfm-icon">${icon}</div>
+      <div class="cfm-title">${title}</div>
+      <div class="cfm-msg">${msg}</div>
+      <div class="cfm-btns">
+        ${cancelText?`<button class="cfm-btn cfm-btn-cancel" id="cfmNo">${cancelText}</button>`:''}
+        <button class="cfm-btn ${danger?'cfm-btn-danger':'cfm-btn-confirm'}" id="cfmYes">${confirmText}</button>
+      </div>
+    </div>`;
+    document.body.appendChild(ov);
+    requestAnimationFrame(()=>ov.classList.add('show'));
+    const close=(val)=>{ov.classList.remove('show');setTimeout(()=>ov.remove(),200);resolve(val);};
+    const cfmNo=ov.querySelector('#cfmNo'); if(cfmNo) cfmNo.onclick=()=>close(false);
+    ov.querySelector('#cfmYes').onclick=()=>close(true);
+    ov.addEventListener('click',e=>{if(e.target===ov)close(false);});
+  });
+}
+
 // ══════════════════════════════════════════════════════════
 //  UTILS
 // ══════════════════════════════════════════════════════════
@@ -1495,16 +1539,21 @@ function renderGastos() {
   // Populate month filter options (once, or keep in sync)
   const sel=document.getElementById('gastosMonthFilter');
   if(sel){
-    const months=DB.monthly.map(m=>({label:m.month+' '+m.year,month:m.month,year:m.year}));
+    // Build YYYY-MM options from transactions dates
+    const ymSet=new Set(DB.real_exp.filter(t=>t.date).map(t=>t.date.slice(0,7)));
+    const ymSorted=[...ymSet].sort();
     const curVal=sel.value;
     sel.innerHTML='<option value="all">Todos los meses</option>'+
-      months.map(m=>`<option value="${m.month}-${m.year}">${m.label}</option>`).join('');
-    // Restore selection or default to latest month
-    if(curVal&&curVal!=='all'&&[...sel.options].some(o=>o.value===curVal)) sel.value=curVal;
-    else if(!curVal||curVal==='') sel.value=months.length?`${months[months.length-1].month}-${months[months.length-1].year}`:'all';
+      ymSorted.map(ym=>{
+        const [y,mo]=ym.split('-');
+        const lbl=new Date(+y,+mo-1,1).toLocaleString('es',{month:'long',year:'numeric'});
+        return`<option value="${ym}">${lbl}</option>`;
+      }).join('');
+    if(curVal&&curVal!=='all'&&ymSorted.includes(curVal)) sel.value=curVal;
+    else if(!curVal||curVal==='') sel.value=ymSorted.length?ymSorted[ymSorted.length-1]:'all';
   }
   const filterVal=sel?sel.value:'all';
-  const re=filterVal==='all'?DB.real_exp:DB.real_exp.filter(t=>`${t.month}-${t.year}`===filterVal);
+  const re=filterVal==='all'?DB.real_exp:DB.real_exp.filter(t=>t.date&&t.date.startsWith(filterVal));
   // Resolve color: CAT_COL map → CATS_EXP/INC label match → custom cats → gray fallback
   const resolveCatColor = name => {
     if (CAT_COL[name]) return CAT_COL[name];
@@ -1542,7 +1591,10 @@ function renderGastos() {
   if(feat('gastos','top10_table')){
     const top=[...re].sort((a,b)=>b.amount-a.amount).slice(0,10);
     const titleEl=document.getElementById('topTblTitle');
-    if(titleEl) titleEl.textContent=filterVal==='all'?'Top 10 gastos individuales — Todos los meses':`Top 10 gastos — ${filterVal.replace('-',' ')}`;
+    if(titleEl){
+      if(filterVal==='all') titleEl.textContent='Top 10 gastos individuales — Todos los meses';
+      else{ const [y,mo]=filterVal.split('-'); const lbl=new Date(+y,+mo-1,1).toLocaleString('es',{month:'long',year:'numeric'}); titleEl.textContent='Top 10 gastos — '+lbl; }
+    }
     document.getElementById('topTbl').innerHTML=top.map((t,i)=>{const col=resolveCatColor(t.category);return`<tr><td style="color:var(--m)">${i+1}</td><td style="color:var(--m)">${t.date}</td><td style="font-weight:500">${t.description||t.category}</td><td><span class="cpill" style="background:${col}22;color:${col}">${t.category}</span></td><td class="td-neg" style="text-align:right;font-family:var(--font-display);font-weight:600">-${fmtF(t.amount)}</td></tr>`;}).join('');
   }
 }
@@ -1973,8 +2025,9 @@ function getCatById(id){
   return [...CATS_EXP,...CATS_INC,...customCatsExp,...customCatsInc].find(c=>c.id===id);
 }
 
-function deleteCustomCat(id){
-  if(!confirm('¿Eliminar esta categoría personalizada?')) return;
+async function deleteCustomCat(id){
+  const ok=await phiConfirm({icon:'🗑️',title:'Eliminar categoría',msg:'¿Estás seguro de que deseas eliminar esta categoría personalizada?',confirmText:'Eliminar',cancelText:'Cancelar',danger:true});
+  if(!ok) return;
   if(txType==='expense') customCatsExp=customCatsExp.filter(c=>c.id!==id);
   else                   customCatsInc=customCatsInc.filter(c=>c.id!==id);
   saveCustomCats();
@@ -2166,6 +2219,8 @@ async function addTx(){
       subcategory:selCat,
       description:desc,
       account:'Rappi',
+      month:d.toLocaleString('en',{month:'long'}),
+      year:d.getFullYear(),
     });
     DB.all.unshift(res);
     if(txType==='income') DB.income.unshift(res);
@@ -2422,9 +2477,10 @@ function renderHistorial(){
 }
 
 async function deleteTx(id){
-  if(!confirm('¿Eliminar esta transacción?'))return;
-  const ok=await sbDelete('transactions',id);
-  if(ok){ DB.all=DB.all.filter(t=>t.id!==id); DB.income=DB.income.filter(t=>t.id!==id); DB.expenses=DB.expenses.filter(t=>t.id!==id); DB.real_exp=DB.real_exp.filter(t=>t.id!==id); DB.monthly=buildMonthly(DB.all); renderAll(); }
+  const ok=await phiConfirm({icon:'🗑️',title:'Eliminar transacción',msg:'¿Estás seguro de que deseas eliminar esta transacción? Esta acción no se puede deshacer.',confirmText:'Eliminar',cancelText:'Cancelar',danger:true});
+  if(!ok)return;
+  const deleted=await sbDelete('transactions',id);
+  if(deleted){ DB.all=DB.all.filter(t=>t.id!==id); DB.income=DB.income.filter(t=>t.id!==id); DB.expenses=DB.expenses.filter(t=>t.id!==id); DB.real_exp=DB.real_exp.filter(t=>t.id!==id); DB.monthly=buildMonthly(DB.all); renderAll(); }
 }
 
 // ══════════════════════════════════════════════════════════
@@ -2464,6 +2520,8 @@ function _pf(v) { // format number → $1.2M / $450K / $12K
 }
 
 async function exportStatement(sections = [], sendEmail = false, stmtYM = null) {
+  const ok=await phiConfirm({icon:'📄',title:'Extracto financiero',msg:'¿Deseas recibir una copia de tu extracto financiero en tu correo electrónico?',confirmText:'Enviar',cancelText:'No, gracias'});
+  if(!ok) return;
   if (stmtYM === 'all' || !stmtYM) stmtYM = null;
 
   // Show cursor feedback
@@ -3168,12 +3226,12 @@ async function exportStatement(sections = [], sendEmail = false, stmtYM = null) 
           },
           ejsCfg.public_key
         );
-        alert(`✓ Estado financiero enviado a ${toEmail}`);
+        await phiNotify({icon:'✅',title:'¡Enviado exitosamente!',msg:`Tu extracto financiero fue enviado a <strong>${toEmail}</strong>.`,btnText:'Perfecto'});
       } catch (emailErr) {
         console.error('EmailJS error:', emailErr);
         // Graceful fallback: download locally
         doc.save(fileName);
-        alert(`No se pudo enviar por email (${emailErr?.text || emailErr}). El archivo fue descargado en su lugar.`);
+        await phiNotify({icon:'⚠️',title:'No se pudo enviar',msg:`El archivo fue descargado en su lugar. Error: ${emailErr?.text || emailErr}`,btnText:'Entendido',danger:true});
       }
     } else if (sendEmail && !ejsReady) {
       // EmailJS not configured — download + open mail client as fallback
@@ -3882,7 +3940,7 @@ if('serviceWorker' in navigator){
 
 <script>
 (function(){
-  const CURRENT_V = '20260322-029';
+  const CURRENT_V = '20260322-030';
   const BANNER_ID = 'updateBanner';
 
   // Clean up ?r= cache-bust param from URL after successful update
