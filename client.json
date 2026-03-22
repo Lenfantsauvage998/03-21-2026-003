@@ -109,7 +109,7 @@
       }
     },
     "montecarlo": {
-      "enabled": false,
+      "enabled": true,
       "label": "Portafolios",
       "features": {
         "portfolio_selector": true,
