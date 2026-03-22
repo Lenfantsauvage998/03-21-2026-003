@@ -3818,13 +3818,29 @@ if('serviceWorker' in navigator){
   const CURRENT_V = '20260322-005';
   const BANNER_ID = 'updateBanner';
 
+  async function doUpdate(){
+    // 1. Limpiar todos los cachés del SW
+    if('caches' in window){
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+    // 2. Si hay un SW esperando, decirle que tome control ya
+    if('serviceWorker' in navigator){
+      const reg = await navigator.serviceWorker.getRegistration();
+      if(reg?.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
+    // 3. Recargar forzando red (no caché)
+    window.location.reload();
+  }
+
   function showUpdateBanner(){
     if(document.getElementById(BANNER_ID)) return;
     const b = document.createElement('div');
     b.id = BANNER_ID;
     b.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--color-primary);color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-family:var(--font-body);box-shadow:0 8px 32px rgba(0,0,0,0.4);display:flex;align-items:center;gap:14px;max-width:90vw;white-space:nowrap;';
-    b.innerHTML = '<span>🚀 Nueva versión disponible</span><button onclick="window.location.reload(true)" style="background:rgba(255,255,255,0.22);border:none;color:#fff;padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600;">Actualizar</button>';
+    b.innerHTML = '<span>🚀 Nueva versión disponible</span><button id="updateBtn" style="background:rgba(255,255,255,0.22);border:none;color:#fff;padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600;">Actualizar</button>';
     document.body.appendChild(b);
+    document.getElementById('updateBtn').addEventListener('click', doUpdate);
   }
 
   async function checkVersion(){
