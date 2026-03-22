@@ -68,7 +68,7 @@
       }
     },
     "proyeccion": {
-      "enabled": true,
+      "enabled": false,
       "label": "Proyección",
       "features": {
         "goal_slider": true,
