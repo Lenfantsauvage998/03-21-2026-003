@@ -1341,8 +1341,14 @@ async function loadAll() {
 function buildMonthly(txs) {
   const map={};
   txs.filter(t=>t.type!=='transfer').forEach(t=>{
-    const k=`${t.year}-${MONTH_NUM[t.month]||0}`;
-    if(!map[k]) map[k]={year:t.year,month:t.month,income:0,expenses:0,
+    // Derive year/month from t.date (works even if t.year/t.month columns don't exist)
+    const dateStr = t.date || (t.year && t.month ? `${t.year}-${String(MONTH_NUM[t.month]||1).padStart(2,'0')}-01` : null);
+    if(!dateStr) return;
+    const d = new Date(dateStr + 'T12:00:00');
+    const year  = d.getFullYear();
+    const month = d.toLocaleString('en', {month:'long'}); // 'January', 'March', etc.
+    const k=`${year}-${MONTH_NUM[month]||0}`;
+    if(!map[k]) map[k]={year,month,income:0,expenses:0,
       salary:0,interest:0,didi:0,freelance:0,reembolso:0,familiar:0,other_inc:0,other_in:0};
     if(t.type==='income'){
       const sub=(t.subcategory||'').toLowerCase();
@@ -3876,7 +3882,7 @@ if('serviceWorker' in navigator){
 
 <script>
 (function(){
-  const CURRENT_V = '20260322-018';
+  const CURRENT_V = '20260322-020';
   const BANNER_ID = 'updateBanner';
 
   async function doUpdate(){

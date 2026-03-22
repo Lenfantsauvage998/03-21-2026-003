@@ -97,7 +97,7 @@
       }
     },
     "mes_perfecto": {
-      "enabled": false,
+      "enabled": true,
       "label": "Mes Perfecto",
       "features": {
         "kpi_cards": true,
@@ -109,7 +109,7 @@
       }
     },
     "montecarlo": {
-      "enabled": false,
+      "enabled": true,
       "label": "Portafolios",
       "features": {
         "portfolio_selector": true,
@@ -120,7 +120,7 @@
       }
     },
     "calculator": {
-      "enabled": false,
+      "enabled": true,
       "label": "Calculadora",
       "features": {
         "capital_summary": true,
@@ -131,11 +131,11 @@
       }
     },
     "insights": {
-      "enabled": false,
+      "enabled": true,
       "label": "Insights"
     },
     "predictor": {
-      "enabled": false,
+      "enabled": true,
       "label": "Predictor"
     }
   },
