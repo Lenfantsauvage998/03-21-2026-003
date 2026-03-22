@@ -1,8 +1,7 @@
 // Bump version whenever static assets change
-const CACHE = 'dfg-v13';
+const CACHE = 'dfg-v14';
 
 // Derive base path from SW location so any GitHub Pages repo name works
-// e.g. /dfg-finance1/sw.js  →  base = /dfg-finance1
 const BASE = self.location.pathname.replace(/\/sw\.js$/, '');
 
 const ASSETS = [
@@ -36,11 +35,15 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Let Supabase and Google Fonts go straight to network — never cache them here
+  // Let Supabase and Google Fonts go straight to network — never cache
   if (e.request.url.includes('supabase.co') || e.request.url.includes('fonts.googleapis')) return;
 
-  // manifest.json: build dynamically from client.json so app_title drives the PWA name
-  if (e.request.url.endsWith('manifest.json')) {
+  // version.json: ALWAYS bypass SW — never cache, never intercept.
+  // This is the heartbeat of the auto-update system; it must always be fresh.
+  if (e.request.url.includes('version.json')) return;
+
+  // manifest.json: build dynamically from client.json
+  if (e.request.url.includes('manifest.json')) {
     e.respondWith(
       fetch(BASE + '/client.json')
         .then(r => r.json())
@@ -73,9 +76,8 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // client.json: network-first so config updates reach users immediately;
-  // fall back to cache only when offline
-  if (e.request.url.endsWith('client.json')) {
+  // client.json: network-first, cache fallback for offline
+  if (e.request.url.includes('client.json')) {
     e.respondWith(
       fetch(e.request)
         .then(r => {
@@ -87,21 +89,21 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // HTML files: always network-first, no-store to bypass every HTTP cache layer.
-  // Strip query params before caching so ?r=timestamp variants don't fragment the cache.
+  // HTML files: network-first.
+  // Fetch WITH query params (?r=timestamp) so the CDN sees a unique URL and returns fresh content.
+  // Cache under the CLEAN URL (no params) to avoid fragmenting the cache.
   if (e.request.url.includes('.html')) {
     const cleanUrl = e.request.url.replace(/\?.*$/, '');
-    const cleanReq = new Request(cleanUrl, { cache: 'no-store' });
     e.respondWith(
-      fetch(cleanReq)
+      fetch(e.request, { cache: 'no-store' })
         .then(r => {
           if (r.ok) {
             const cl = r.clone();
-            caches.open(CACHE).then(c => c.put(cleanReq, cl));
+            caches.open(CACHE).then(c => c.put(new Request(cleanUrl), cl));
           }
           return r;
         })
-        .catch(() => caches.match(cleanReq))
+        .catch(() => caches.match(new Request(cleanUrl)))
     );
     return;
   }

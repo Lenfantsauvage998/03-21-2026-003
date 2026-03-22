@@ -3943,11 +3943,6 @@ if('serviceWorker' in navigator){
   setInterval(checkVersion, 60_000);
 
   if('serviceWorker' in navigator){
-    // When the SW changes controller (new SW took over) → reload immediately
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      const clean = location.href.replace(/[?#].*/, '');
-      location.replace(clean + '?r=' + Date.now());
-    });
     navigator.serviceWorker.addEventListener('message', e => {
       if(e.data?.type === 'NEW_VERSION') showUpdateBanner();
     });
