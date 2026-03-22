@@ -2136,11 +2136,19 @@ function toggleVoice(){
 async function addTx(){
   const amount=parseInt(document.getElementById('txAmt').value);
   const activeCat = getCatById(selCat);
-  const desc=document.getElementById('txDesc').value.trim()||(activeCat?.lbl||selCat);
+  const desc=document.getElementById('txDesc').value.trim();
   const date=document.getElementById('txDate').value||new Date().toISOString().slice(0,10);
   const msgEl=document.getElementById('txMsg');
   if(!amount||amount<=0){msgEl.textContent='Ingresa un monto';msgEl.style.color='var(--rd)';return;}
   if(!selCat){msgEl.textContent='Selecciona una categoría';msgEl.style.color='var(--rd)';return;}
+  if(!desc){
+    msgEl.textContent='La descripción es obligatoria';msgEl.style.color='var(--rd)';
+    const el=document.getElementById('txDesc');
+    el.style.borderColor='var(--rd)';
+    el.focus();
+    setTimeout(()=>{el.style.borderColor='';},2000);
+    return;
+  }
   msgEl.textContent='Guardando...';msgEl.style.color='var(--m)';
   try {
     const d=new Date(date+'T12:00:00');
@@ -2152,8 +2160,6 @@ async function addTx(){
       subcategory:selCat,
       description:desc,
       account:'Rappi',
-      month:d.toLocaleString('en',{month:'long'}),
-      year:d.getFullYear(),
     });
     DB.all.unshift(res);
     if(txType==='income') DB.income.unshift(res);
@@ -2503,20 +2509,50 @@ async function exportStatement(sections = [], sendEmail = false, stmtYM = null) 
     const doc  = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
     const W = 210, H = 297, ML = 14, MR = 14, CW = W - ML - MR;
 
-    // Palette — PHI Φ Finances
-    const PU  = [184, 155, 106];  // #b89b6a — gold, primary accent
-    const DK  = [15,  15,  15];   // #0f0f0f — deep black cover bg
-    const DK2 = [28,  28,  28];   // #1c1c1c — dark band
-    const GR  = [184, 155, 106];  // #b89b6a — positive values (gold)
-    const RD  = [28,  28,  28];   // #1c1c1c — negative values (bold dark)
-    const GY  = [136, 136, 136];  // #888888 — subtitles
-    const LG  = [229, 213, 192];  // #e5d5c0 — soft warm border
-    const AL  = [255, 248, 241];  // #fff8f1 — alternating row beige
-    const WH  = [255, 255, 255];  // white — text on dark backgrounds
-    const NK  = [51,  51,  51];   // #333333 — main body text
-    const TL  = [184, 155, 106];  // #b89b6a — accent (mapped to gold)
-    const AU  = [170, 170, 170];  // #aaaaaa — footer / auxiliary text
-    const PB  = [243, 232, 217];  // #f3e8d9 — card / button fill
+    // ── Theme-aware PDF palette ───────────────────────────────────────────
+    const pdfTheme = liveCFG?.client?.branding?.theme ||
+                     document.documentElement.getAttribute('data-theme') || 'phantom';
+    const PDF_THEMES = {
+      phantom: {
+        PU:[124, 92,252], DK:[  8,  9, 16], DK2:[ 20, 22, 38],
+        NK:[220,218,240], GY:[ 96,100,140], LG:[ 40, 44, 80],
+        AL:[ 14, 16, 30], WH:[255,255,255], TL:[124, 92,252],
+        AU:[ 96,100,140], PB:[ 14, 16, 32],
+        GR:[ 34,180,100], RD:[220, 65, 65], EXP:[229,213,192], dark:true,
+      },
+      carbon: {
+        PU:[212,168, 67], DK:[  4,  4,  4], DK2:[ 23, 23, 23],
+        NK:[226,223,216], GY:[122,118,114], LG:[ 50, 46, 30],
+        AL:[ 18, 17, 14], WH:[255,255,255], TL:[240,200, 74],
+        AU:[100, 95, 90], PB:[ 20, 19, 15],
+        GR:[ 45,209,134], RD:[232, 64, 64], EXP:[229,213,192], dark:true,
+      },
+      forest: {
+        PU:[ 29,184,106], DK:[  6, 13,  9], DK2:[ 17, 36, 24],
+        NK:[221,232,226], GY:[ 94,114,102], LG:[ 30, 58, 40],
+        AL:[ 13, 28, 18], WH:[255,255,255], TL:[ 93,224,155],
+        AU:[ 80,100, 88], PB:[ 13, 30, 20],
+        GR:[ 93,224,155], RD:[255,107, 85], EXP:[200,240,215], dark:true,
+      },
+      solar: {
+        PU:[224,144, 48], DK:[ 12,  9,  0], DK2:[ 32, 26, 14],
+        NK:[232,226,212], GY:[122,110, 88], LG:[ 50, 40, 16],
+        AL:[ 20, 16,  8], WH:[255,255,255], TL:[240,184, 74],
+        AU:[100, 88, 65], PB:[ 24, 18,  8],
+        GR:[ 72,216,152], RD:[240, 80, 80], EXP:[229,213,192], dark:true,
+      },
+      arctic: {
+        PU:[ 26, 82,212], DK:[255,255,255], DK2:[232,238,248],
+        NK:[ 26, 32, 48], GY:[ 90,104,128], LG:[200,216,240],
+        AL:[235,244,255], WH:[255,255,255], TL:[ 74,128,240],
+        AU:[120,130,150], PB:[245,250,255],
+        GR:[ 18,160, 96], RD:[216, 48, 48], EXP:[216, 48, 48], dark:false,
+      },
+    };
+    const _PAL = PDF_THEMES[pdfTheme] || PDF_THEMES.phantom;
+    const PU=_PAL.PU, DK=_PAL.DK, DK2=_PAL.DK2, NK=_PAL.NK, GY=_PAL.GY;
+    const LG=_PAL.LG, AL=_PAL.AL, WH=_PAL.WH, TL=_PAL.TL, AU=_PAL.AU, PB=_PAL.PB;
+    const GR=_PAL.GR, RD=_PAL.RD;
 
     // Date helpers
     const genDate = new Date().toLocaleDateString('es-CO',{year:'numeric',month:'long',day:'numeric'});
@@ -2540,6 +2576,10 @@ async function exportStatement(sections = [], sendEmail = false, stmtYM = null) 
 
     // ── Header / Footer on every content page ────────────────────────────
     function addHF() {
+      // Fill page background — critical for dark themes (arctic DK=white = no-op)
+      doc.setFillColor(...DK); doc.rect(0, 0, W, H, 'F');
+      // Left accent stripe — matches cover
+      doc.setFillColor(...PU); doc.rect(0, 0, 3.5, H, 'F');
       doc.setDrawColor(...PU); doc.setLineWidth(0.7);
       doc.line(ML, 7, W-MR, 7);
       doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...PU);
@@ -2567,16 +2607,21 @@ async function exportStatement(sections = [], sendEmail = false, stmtYM = null) 
     const SICO = { overview:'o', flujo:'~', gastos:'$', proyeccion:'^',
                    diario:'+', perfecto:'*', montecarlo:'%', insights:'>' };
 
-    // Open a new section page, return y cursor after dark banner
+    // Open a new section page, return y cursor after banner
     function newSection(key) {
       doc.addPage(); pageN++;
-      addHF();
-      doc.setFillColor(...DK2); doc.rect(0, 15, W, 21, 'F');
-      doc.setFillColor(...PU);  doc.rect(0, 15, 4, 21, 'F');
+      addHF(); // fills full-page bg + left stripe (0→3.5mm)
+      // Banner starts at 3.5 (after stripe) so it never overlaps the accent bar
+      // Dark themes: DK2 is clearly distinct from DK — light themes: use PU so WH text is visible
+      const bannerBg = _PAL.dark ? DK2 : PU;
+      doc.setFillColor(...bannerBg); doc.rect(3.5, 15, W - 3.5, 21, 'F');
+      // Redraw stripe on top to keep it sharp over the banner seam
+      doc.setFillColor(...PU); doc.rect(0, 15, 3.5, 21, 'F');
       doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...WH);
-      doc.text(SLBL[key] || key.toUpperCase(), ML+7, 28.5);
-      doc.setFontSize(12); doc.setTextColor(...PU);
-      doc.text(SICO[key]||'·', W-MR, 28.5, {align:'right'});
+      doc.text(SLBL[key] || key.toUpperCase(), ML + 7, 28.5);
+      // Icon color: WH on PU banner (arctic) or PU on DK2 banner (dark themes)
+      doc.setFontSize(12); doc.setTextColor(...(_PAL.dark ? PU : WH));
+      doc.text(SICO[key]||'·', W - MR, 28.5, {align:'right'});
       return 44;
     }
 
@@ -2608,6 +2653,7 @@ async function exportStatement(sections = [], sendEmail = false, stmtYM = null) 
           font:'helvetica', fontSize:8.5,
           cellPadding:{top:3.5, right:5, bottom:3.5, left:5},
           textColor:NK, lineColor:LG, lineWidth:0.2,
+          fillColor:DK2,  // explicit bg on every row — prevents white default on dark themes
         },
         headStyles: { fillColor:PU, textColor:WH, fontStyle:'bold', fontSize:9 },
         alternateRowStyles: { fillColor:AL },
@@ -2640,92 +2686,107 @@ async function exportStatement(sections = [], sendEmail = false, stmtYM = null) 
     });
 
     // ════════════════════════════════════════════════════════════════════
-    // COVER PAGE — full dark background
+    // COVER PAGE — premium redesign with PHI geometric symbol
     // ════════════════════════════════════════════════════════════════════
+
+    // Full page background
     doc.setFillColor(...DK); doc.rect(0, 0, W, H, 'F');
 
-    // Client monogram — initials from CFG
-    doc.setFillColor(...PU); doc.roundedRect(ML, 17, 26, 26, 3, 3, 'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(clientInitials.length > 2 ? 11 : 14);
-    doc.setTextColor(...WH);
-    doc.text(clientInitials, ML+13, 32.5, {align:'center'});
+    // Left accent stripe — premium report style
+    doc.setFillColor(...PU); doc.rect(0, 0, 3.5, H, 'F');
 
-    // Title block
-    doc.setFont('helvetica','bold'); doc.setFontSize(32); doc.setTextColor(...WH);
-    doc.text('Estado Financiero', ML, 70);
-    // Client name under title
-    doc.setFont('helvetica','normal'); doc.setFontSize(13); doc.setTextColor(...PU);
-    doc.text(clientName, ML, 80);
+    // ── PHI Φ logo — geometric (circle + vertical line) inside badge ──
+    const lgX = ML + 8, lgY = 16, lgS = 30;
+    const lcx = lgX + lgS/2, lcy = lgY + lgS/2, lcr = 8;
+    doc.setFillColor(...PU); doc.roundedRect(lgX, lgY, lgS, lgS, 5, 5, 'F');
+    // Circle
+    doc.setDrawColor(...WH); doc.setLineWidth(1.5);
+    doc.circle(lcx, lcy, lcr, 'S');
+    // Vertical line through circle
+    doc.line(lcx, lcy - lcr - 3.5, lcx, lcy + lcr + 3.5);
+
+    // ── Main title — two-line, large ─────────────────────────────────
+    doc.setFont('helvetica','bold'); doc.setFontSize(40); doc.setTextColor(...NK);
+    doc.text('Estado', ML + 8, 82);
+    doc.text('Financiero', ML + 8, 97);
+
+    // Thin rule under title
+    doc.setDrawColor(...PU); doc.setLineWidth(0.9);
+    doc.line(ML + 8, 102, W - MR, 102);
+
+    // Client name — prominent headline
+    doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(...PU);
+    doc.text(clientName, ML + 8, 113);
+
     // Period
-    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...GY);
-    doc.text(period, ML, 88);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...GY);
+    doc.text(period, ML + 8, 121);
 
-    // Purple rule
-    doc.setDrawColor(...PU); doc.setLineWidth(0.8);
-    doc.line(ML, 94, W-MR, 94);
-
-    // Cover KPI cards — taller, fully centered
-    const ckw = (CW-10)/3;
+    // ── KPI cards row (3) — aligned to ML+8 / W-MR ───────────────────
+    const cardL = ML + 8;                        // left edge = same as title
+    const cardR = W - MR;                        // right edge
+    const cardGap = 5;
+    const ckw = (cardR - cardL - cardGap*2) / 3; // 3 cards, 2 gaps
     [
-      { label:'PATRIMONIO NETO', val:_pf(DB.curBal),         color:GR  },
-      { label:'PERIODO',         val:period,                  color:PU  },
-      { label:'SECCIONES',       val:inc.length+' incluidas', color:TL  },
+      { label:'PATRIMONIO NETO', val:_pf(DB.curBal), color:GR },
+      { label:'PERIODO',         val:period,          color:PU },
+      { label:'SECCIONES',       val:inc.length+' incluidas', color:TL },
     ].forEach((k, i) => {
-      const x  = ML + i*(ckw+5);
+      const x  = cardL + i*(ckw+cardGap);
       const cx = x + ckw/2;
-      // Card background
-      doc.setFillColor(...DK2); doc.setDrawColor(...PU); doc.setLineWidth(0.3);
-      doc.roundedRect(x, 100, ckw, 32, 3, 3, 'FD');
-      // Top accent line
-      doc.setFillColor(...k.color); doc.rect(x, 100, ckw, 2.5, 'F');
+      // Card — no border, soft fill only
+      doc.setFillColor(...DK2); doc.roundedRect(x, 129, ckw, 34, 3, 3, 'F');
+      // Top accent bar
+      doc.setFillColor(...k.color); doc.roundedRect(x, 129, ckw, 3, 1.5, 1.5, 'F');
       // Label
-      doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(...GY);
-      doc.text(k.label, cx, 111, {align:'center'});
-      // Value — auto-shrink font for longer strings (period text)
+      doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(...GY);
+      doc.text(k.label, cx, 140, {align:'center'});
+      // Value
       const valStr = String(k.val);
-      const valFs  = valStr.length > 12 ? 8.5 : 12.5;
+      const valFs  = valStr.length > 12 ? 8 : 13;
       doc.setFont('helvetica','bold'); doc.setFontSize(valFs); doc.setTextColor(...k.color);
-      doc.text(valStr, cx, 124, {align:'center'});
+      doc.text(valStr, cx, 154, {align:'center'});
     });
 
-    // ── Cover income / expense summary row ───────────────────────────────
+    // ── Income / Expense cards row (2) — same left/right edges ──────
     const coverInc = _all.filter(t=>t.type==='income').reduce((s,t)=>s+Math.abs(t.amount),0);
     const coverExp = _all.filter(t=>t.type==='expense').reduce((s,t)=>s+Math.abs(t.amount),0);
-    const ckw2 = (CW-8)/2;
-    // Use gold for income, soft beige-border color for expenses (both visible on dark bg)
-    const EXP_COL = [229, 213, 192]; // #e5d5c0 — visible on dark, distinct from gold
+    const ckw2 = (cardR - cardL - 8) / 2;
+    const EXP_COL = _PAL.EXP;
     [
       { label:'DINERO RECIBIDO', val:_pf(coverInc), color:GR      },
       { label:'DINERO SALIENTE', val:_pf(coverExp), color:EXP_COL },
-    ].forEach((k,i) => {
-      const x  = ML + i*(ckw2+8);
+    ].forEach((k, i) => {
+      const x  = cardL + i*(ckw2+8);
       const cx = x + ckw2/2;
-      doc.setFillColor(...DK2); doc.setDrawColor(...k.color); doc.setLineWidth(0.4);
-      doc.roundedRect(x, 141, ckw2, 28, 3, 3, 'FD');
-      doc.setFillColor(...k.color); doc.rect(x, 141, ckw2, 2.5, 'F');
-      doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor(...GY);
-      doc.text(k.label, cx, 152, {align:'center'});
-      doc.setFont('helvetica','bold'); doc.setFontSize(12.5); doc.setTextColor(...k.color);
-      doc.text(k.val, cx, 163, {align:'center'});
+      doc.setFillColor(...DK2); doc.roundedRect(x, 171, ckw2, 30, 3, 3, 'F');
+      doc.setFillColor(...k.color); doc.roundedRect(x, 171, ckw2, 3, 1.5, 1.5, 'F');
+      doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(...GY);
+      doc.text(k.label, cx, 182, {align:'center'});
+      doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...k.color);
+      doc.text(k.val, cx, 194, {align:'center'});
     });
 
-    // Sections list
-    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...PU);
-    doc.text('SECCIONES INCLUIDAS', ML, 183);
-    doc.setDrawColor(...LG); doc.setLineWidth(0.3);
-    doc.line(ML, 186, W-MR, 186);
+    // ── Sections list ─────────────────────────────────────────────────
+    doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor(...PU);
+    doc.text('SECCIONES INCLUIDAS', ML + 8, 214);
+    doc.setDrawColor(...LG); doc.setLineWidth(0.25);
+    doc.line(ML + 8, 217, W - MR, 217);
     inc.forEach((s, i) => {
-      const col = i%2===0 ? ML : ML+CW/2+2;
+      const col = i%2===0 ? ML+8 : ML+CW/2+4;
       const row = Math.floor(i/2);
-      doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...AU);
-      doc.text('\xBB  '+(SLBL[s]||s), col, 195 + row*9);
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...AU);
+      doc.text('\xBB  '+(SLBL[s]||s), col, 225 + row*9);
     });
 
-    // Footer tagline
-    doc.setFontSize(7); doc.setTextColor(...AU);
-    doc.text(`Generado el ${genDate}  \xB7  ${cleanTxt(appTitle)}  \xB7  Datos Supabase PostgreSQL`, W/2, H-15, {align:'center'});
-    doc.setFontSize(8); doc.setTextColor(40,40,65);
-    doc.text('C O N F I D E N C I A L', W/2, H-9, {align:'center'});
+    // ── Footer ───────────────────────────────────────────────────────
+    // Thin rule before footer
+    doc.setDrawColor(...LG); doc.setLineWidth(0.2);
+    doc.line(ML + 8, H-20, W-MR, H-20);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...AU);
+    doc.text(`Generado el ${genDate}  \xB7  ${cleanTxt(appTitle)}  \xB7  Supabase PostgreSQL`, W/2, H-13, {align:'center'});
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...GY);
+    doc.text('C O N F I D E N C I A L', W/2, H-7, {align:'center'});
 
     // ════════════════════════════════════════════════════════════════════
     // 01 · OVERVIEW — Net Worth progression
@@ -3848,8 +3909,10 @@ if('serviceWorker' in navigator){
     }catch(_){}
   }
 
-  setTimeout(checkVersion, 3000);
-  setInterval(checkVersion, 5 * 60 * 1000);
+  setTimeout(checkVersion,  3_000);   // 3s  — on open
+  setTimeout(checkVersion, 30_000);   // 30s — after settling
+  setTimeout(checkVersion, 90_000);   // 90s — safety net
+  setInterval(checkVersion, 60_000);  // every 60s — ongoing
 
   if('serviceWorker' in navigator){
     navigator.serviceWorker.addEventListener('message', e => {
