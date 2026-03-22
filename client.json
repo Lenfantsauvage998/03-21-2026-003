@@ -89,7 +89,7 @@
       }
     },
     "historial": {
-      "enabled": false,
+      "enabled": true,
       "label": "History",
       "features": {
         "history": true,
