@@ -997,8 +997,8 @@ input[type=range]{width:100%;accent-color:var(--ac2);cursor:pointer;height:20px;
 // ══════════════════════════════════════════════════════════
 //  CONFIG — Supabase hardcoded
 // ══════════════════════════════════════════════════════════
-const SB_URL = 'https://rhzlbnlhubuorfujavec.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJoemxibmxodWJ1b3JmdWphdmVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5NjE4NzcsImV4cCI6MjA4OTUzNzg3N30.LmAHCn8dbRSjh4BowCHsJO98N9BEbnAnoGVPLED9tYQ';
+const SB_URL = 'https://nrmdblrdjouahwknyvuw.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ybWRibHJkam91YWh3a255dnV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxMzY4ODQsImV4cCI6MjA4OTcxMjg4NH0.Bjqvc8tZqF1XHhBUAS9yKWiTyibqxpxMiQnAADNteCE';
 
 // ══════════════════════════════════════════════════════════
 //  SUPABASE CLIENT
@@ -3748,7 +3748,7 @@ document.getElementById('txDate').value=new Date().toISOString().slice(0,10);
 //  PIN LOCK — SHA-256 hash of access PIN
 //  To change: hash your new PIN at emn178.github.io/online-tools/sha256.html
 // ══════════════════════════════════════════════════════════
-const PIN_HASH = '4739ee3bd29e4f415da8ba9298a087e0fdc9c61378420ba8fbbab298bd74c4df';
+const PIN_HASH = 'a19fbf8bf0530ca46179b803a8234f56276f21c0e7dc2f84c682924b95de5801';
 
 async function sha256(str){
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
@@ -3812,5 +3812,40 @@ if('serviceWorker' in navigator){
 
 // loadAll() called by PIN auth above
 </script>
+
+<script>
+(function(){
+  const CURRENT_V = '20260321-001';
+  const BANNER_ID = 'updateBanner';
+
+  function showUpdateBanner(){
+    if(document.getElementById(BANNER_ID)) return;
+    const b = document.createElement('div');
+    b.id = BANNER_ID;
+    b.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:9999;background:var(--color-primary);color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-family:var(--font-body);box-shadow:0 8px 32px rgba(0,0,0,0.4);display:flex;align-items:center;gap:14px;max-width:90vw;white-space:nowrap;';
+    b.innerHTML = '<span>🚀 Nueva versión disponible</span><button onclick="window.location.reload(true)" style="background:rgba(255,255,255,0.22);border:none;color:#fff;padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600;">Actualizar</button>';
+    document.body.appendChild(b);
+  }
+
+  async function checkVersion(){
+    try{
+      const r = await fetch('version.json?_=' + Date.now());
+      if(!r.ok) return;
+      const {v} = await r.json();
+      if(v && v !== CURRENT_V) showUpdateBanner();
+    }catch(_){}
+  }
+
+  setTimeout(checkVersion, 3000);
+  setInterval(checkVersion, 5 * 60 * 1000);
+
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.addEventListener('message', e => {
+      if(e.data?.type === 'NEW_VERSION') showUpdateBanner();
+    });
+  }
+})();
+</script>
+
 </body>
 </html>
