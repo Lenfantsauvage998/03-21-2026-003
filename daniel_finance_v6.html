@@ -3950,10 +3950,7 @@ if('serviceWorker' in navigator){
     const btn = document.getElementById('updateBtn');
     if(btn){ btn.textContent = '⏳'; btn.disabled = true; }
 
-    // Step 1: UNREGISTER all service workers.
-    // The OLD SW is the one intercepting requests — it doesn't have the
-    // CDN cache-busting fix. By removing it, the browser goes straight
-    // to the network on reload. The new page will re-register the new SW.
+    // 1. Unregister ALL service workers so none intercept the reload
     try {
       if('serviceWorker' in navigator){
         const regs = await navigator.serviceWorker.getRegistrations();
@@ -3961,7 +3958,7 @@ if('serviceWorker' in navigator){
       }
     } catch(_){}
 
-    // Step 2: wipe every cache entry
+    // 2. Wipe every cache entry
     try {
       if('caches' in window){
         const keys = await caches.keys();
@@ -3969,11 +3966,24 @@ if('serviceWorker' in navigator){
       }
     } catch(_){}
 
-    // Step 3: hard-navigate with cache-busting param.
-    // No SW to intercept → browser goes directly to network.
-    // ?r=timestamp busts GitHub Pages CDN (Fastly max-age=600).
+    // 3. Fetch the new HTML directly and verify the version matches before navigating.
+    //    This confirms the CDN is actually serving the new file.
     const clean = location.href.replace(/[?#].*/, '');
-    location.replace(clean + '?r=' + Date.now());
+    const bust  = clean + '?r=' + Date.now();
+    try {
+      const r = await fetch(bust, { cache: 'no-store' });
+      if(r.ok){
+        const html = await r.text();
+        // If the fetched HTML still has the old version, show a message instead of looping
+        if(html.includes(CURRENT_V)){
+          if(btn){ btn.textContent = '⚠️ CDN no actualizado, reintenta en 1 min'; btn.disabled = false; }
+          return;
+        }
+      }
+    } catch(_){}
+
+    // 4. Navigate — CDN confirmed serving new file
+    window.location.href = bust;
   }
 
   function showUpdateBanner(){
