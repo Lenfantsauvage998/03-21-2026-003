@@ -3940,7 +3940,7 @@ if('serviceWorker' in navigator){
 
 <script>
 (function(){
-  const CURRENT_V = '20260322-031';
+  const CURRENT_V = '20260322-032';
   const BANNER_ID = 'updateBanner';
 
   // Clean up ?r= cache-bust param from URL after successful update
@@ -3950,7 +3950,14 @@ if('serviceWorker' in navigator){
     const btn = document.getElementById('updateBtn');
     if(btn){ btn.textContent = '⏳'; btn.disabled = true; }
 
-    // 1. Unregister ALL service workers so none intercept the reload
+    // 1. Get the target version from version.json
+    let targetV = null;
+    try {
+      const rv = await fetch('version.json?_=' + Date.now(), { cache: 'no-store' });
+      if(rv.ok) targetV = (await rv.json()).v;
+    } catch(_){}
+
+    // 2. Unregister ALL service workers so none intercept the reload
     try {
       if('serviceWorker' in navigator){
         const regs = await navigator.serviceWorker.getRegistrations();
@@ -3958,7 +3965,7 @@ if('serviceWorker' in navigator){
       }
     } catch(_){}
 
-    // 2. Wipe every cache entry
+    // 3. Wipe every cache entry
     try {
       if('caches' in window){
         const keys = await caches.keys();
@@ -3966,23 +3973,25 @@ if('serviceWorker' in navigator){
       }
     } catch(_){}
 
-    // 3. Fetch the new HTML directly and verify the version matches before navigating.
-    //    This confirms the CDN is actually serving the new file.
+    // 4. Verify CDN is already serving the new HTML (contains targetV)
     const clean = location.href.replace(/[?#].*/, '');
     const bust  = clean + '?r=' + Date.now();
-    try {
-      const r = await fetch(bust, { cache: 'no-store' });
-      if(r.ok){
-        const html = await r.text();
-        // If the fetched HTML still has the old version, show a message instead of looping
-        if(html.includes(CURRENT_V)){
-          if(btn){ btn.textContent = '⚠️ CDN no actualizado, reintenta en 1 min'; btn.disabled = false; }
-          return;
+    if(targetV){
+      try {
+        const r = await fetch(bust, { cache: 'no-store' });
+        if(r.ok){
+          const html = await r.text();
+          const match = html.match(/CURRENT_V\s*=\s*'([^']+)'/);
+          const fetchedV = match?.[1];
+          if(fetchedV !== targetV){
+            if(btn){ btn.textContent = '⚠️ Reintenta en 1 min'; btn.disabled = false; }
+            return;
+          }
         }
-      }
-    } catch(_){}
+      } catch(_){}
+    }
 
-    // 4. Navigate — CDN confirmed serving new file
+    // 5. CDN confirmed — navigate to fresh copy
     window.location.href = bust;
   }
 
