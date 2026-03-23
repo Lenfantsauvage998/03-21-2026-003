@@ -23,11 +23,17 @@ self.addEventListener('message', e => {
 
 self.addEventListener('activate', e => {
   e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    ).then(() => {
-      return self.clients.matchAll({ type: 'window' }).then(clients => {
-        clients.forEach(c => c.postMessage({ type: 'NEW_VERSION' }));
+    caches.keys().then(keys => {
+      const oldKeys = keys.filter(k => k !== CACHE);
+      // Only notify clients when there were old caches — means this is a real upgrade,
+      // not a first-install or a post-doUpdate re-registration.
+      const isUpgrade = oldKeys.length > 0;
+      return Promise.all(oldKeys.map(k => caches.delete(k))).then(() => {
+        if (isUpgrade) {
+          return self.clients.matchAll({ type: 'window' }).then(clients => {
+            clients.forEach(c => c.postMessage({ type: 'NEW_VERSION' }));
+          });
+        }
       });
     })
   );
