@@ -51,8 +51,8 @@
       "label": "Flujo",
       "features": {
         "cashflow_chart": true,
-        "income_sources_chart": false,
-        "interest_yield_grid": false
+        "income_sources_chart": true,
+        "interest_yield_grid": true
       }
     },
     "gastos": {
