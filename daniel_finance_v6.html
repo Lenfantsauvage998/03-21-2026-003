@@ -3940,7 +3940,7 @@ if('serviceWorker' in navigator){
 
 <script>
 (function(){
-  const CURRENT_V = '20260322-032';
+  const CURRENT_V = '20260322-033';
   const BANNER_ID = 'updateBanner';
 
   // Clean up ?r= cache-bust param from URL after successful update
@@ -3950,14 +3950,7 @@ if('serviceWorker' in navigator){
     const btn = document.getElementById('updateBtn');
     if(btn){ btn.textContent = '⏳'; btn.disabled = true; }
 
-    // 1. Get the target version from version.json
-    let targetV = null;
-    try {
-      const rv = await fetch('version.json?_=' + Date.now(), { cache: 'no-store' });
-      if(rv.ok) targetV = (await rv.json()).v;
-    } catch(_){}
-
-    // 2. Unregister ALL service workers so none intercept the reload
+    // 1. Unregister ALL service workers — nothing intercepts the reload
     try {
       if('serviceWorker' in navigator){
         const regs = await navigator.serviceWorker.getRegistrations();
@@ -3965,7 +3958,7 @@ if('serviceWorker' in navigator){
       }
     } catch(_){}
 
-    // 3. Wipe every cache entry
+    // 2. Wipe every cache — browser has nothing stale to serve
     try {
       if('caches' in window){
         const keys = await caches.keys();
@@ -3973,26 +3966,10 @@ if('serviceWorker' in navigator){
       }
     } catch(_){}
 
-    // 4. Verify CDN is already serving the new HTML (contains targetV)
+    // 3. Hard navigate — no SW, no cache → browser goes straight to CDN
+    //    ?v=timestamp makes the URL unique so the browser won't use any residual cache
     const clean = location.href.replace(/[?#].*/, '');
-    const bust  = clean + '?r=' + Date.now();
-    if(targetV){
-      try {
-        const r = await fetch(bust, { cache: 'no-store' });
-        if(r.ok){
-          const html = await r.text();
-          const match = html.match(/CURRENT_V\s*=\s*'([^']+)'/);
-          const fetchedV = match?.[1];
-          if(fetchedV !== targetV){
-            if(btn){ btn.textContent = '⚠️ Reintenta en 1 min'; btn.disabled = false; }
-            return;
-          }
-        }
-      } catch(_){}
-    }
-
-    // 5. CDN confirmed — navigate to fresh copy
-    window.location.href = bust;
+    window.location.replace(clean + '?v=' + Date.now());
   }
 
   function showUpdateBanner(){
